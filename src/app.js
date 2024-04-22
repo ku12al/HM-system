@@ -19,7 +19,7 @@ const rooms = require("../routes/roomsRoutes")
 
 // Add body parsing middleware
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true }))
 // Add cors middleware
 app.use(cors());
 
