@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
-
+const dotenv = require('dotenv');
+dotenv.config();
 const connectDatabase = () =>{
-      mongoose.connect("mongodb://127.0.0.1:27017/hostel",{
+      mongoose.connect(process.env.Database_URL,{
             useNewUrlParser: true,
             useUnifiedTopology: true,
       }).then(() =>{
