@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const {check} = require('express-validator');
-const {registerStudent, getStudent, getAllStudent, updatesStudent, deleteStudent} = require("../controller/student");
+const {registerStudent, getStudent, getAllStudent, updatesStudent, deleteStudent} = require("../controller/student")
 
 
 router.post("/register-student",[

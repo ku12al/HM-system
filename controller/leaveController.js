@@ -7,12 +7,16 @@ const leaveRequest = async (req, res) =>{
       if(!errors.isEmpty()){
             return res.status(200).json({success, errors:errors.array()});
       }
-      const {student, hostel, title, reason} = req.body;
+      const {erpid, student,roomNumber, hostel, parentName, parentNumber, title, reason} = req.body;
 
       try{
             const newLeave = new Leave({
+                  erpid,
                   student,
+                  roomNumber,
                   hostel,
+                  parentName,
+                  parentNumber,
                   title,
                   reason
             })

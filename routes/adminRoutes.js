@@ -11,6 +11,8 @@ router.post("/adminregister",[
       check("address", "address is required").not().isEmpty(),
       check("password", "password is required").not().isEmpty(),
       check("hostel", "hostel is required").not().isEmpty(),
-], registerAdmin)
+], registerAdmin);
+
+
 
 module.exports = router;
