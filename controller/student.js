@@ -10,6 +10,7 @@ const registerStudent = async (req, res) => {
   const {
     name,
     erpid,
+    gender,
     email,
     phone,
     year,
@@ -71,6 +72,7 @@ const registerStudent = async (req, res) => {
     student = new Student({
       name,
       erpid,
+      gender,
       email,
       phone,
       year,

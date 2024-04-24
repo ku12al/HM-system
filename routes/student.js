@@ -8,9 +8,10 @@ const {registerStudent, getStudent, getAllStudent, updatesStudent, deleteStudent
 router.post("/register-student",[
       check('name', 'Name is required').not().isEmpty(),
       check('email', 'email is required').isEmail(),
+      check('name', 'Name is required').not().isEmpty(),
       check('room', 'Room number is required').not().isEmpty(),
-      check('erpid', 'Erpid is required').not().isEmpty(),
-      check('phone', 'Enter a valid contact number').isLength(11),
+      check('erpid', 'Erpid is required').not().isLength(6),
+      check('phone', 'Enter a valid contact number').isLength(10),
       check('year', 'Year is required').not().isEmpty(),
       check('dept', 'Room number is required').not().isEmpty(),
       check('course', 'Room number is required').not().isEmpty(),
@@ -45,7 +46,6 @@ router.post("/update-student",[
       check('dob', 'Room number is required').not().isEmpty(),
       check('hostel', 'Room number is required').not().isEmpty(),
       // check('user', 'User is required').not().isEmpty(),
-
 ], updatesStudent);
 
 router.post("/delete-student",[
