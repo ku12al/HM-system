@@ -1,6 +1,5 @@
 const { validationResult } = require("express-validator");
-const Hostel = require("../models/Hostel");
-const { Room } = require("../models/Index");
+const { Hostel , Room } = require("../models/Index");
 
 const roomRegister = async (req, res) => {
   let success = false;
@@ -10,30 +9,22 @@ const roomRegister = async (req, res) => {
   }
 
   const { hostelname, roomNumber, capacity } = req.body;
-
   try {
-    
-
     const shostel = await Hostel.findOne({ hostelname : hostelname });
-
     if (!shostel) {
       return res.status(400).json({ message: "hostel not found" });
     }
-
     let room = await Room.findOne({ roomNumber });
-
     if (room) {
       return res
         .status(400)
         .json({ error: [{ message: "room already exists" }] });
     }
-
     room = new Room({
       hostelname,
       roomNumber,
       capacity,
     })
-
     await room.save();
     success = true;
     return res
@@ -69,8 +60,6 @@ const markByStudent = async (req, res) => {
         res.status(500).json({ error: error.message });
       }
 }
-
-    
 
 
 module.exports ={

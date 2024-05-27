@@ -27,7 +27,7 @@ const leaveSchema = new Schema({
             required:true,
 
       },
-      leavetype:{
+      title:{
             type:String,
             required:true
       },
@@ -39,12 +39,14 @@ const leaveSchema = new Schema({
             type:String,
             default:'pending'
       },
-      date:{
+      qrcode:{
+            type:String,
+      },
+      requestDate:{
             type:Date,
             default: Date.now()
-      }
-
-
+      },
+      approvalDate: Date
 })
 
 module.exports = Leave = mongoose.model('leave', leaveSchema);

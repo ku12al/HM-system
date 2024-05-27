@@ -1,6 +1,6 @@
 const express = require('express');
 const { check } = require('express-validator');
-const { registerAdmin } = require('../controller/adminControl');
+const { registerAdmin } = require('../controller/wardenControl');
 const router = express.Router();
 
 router.post("/adminregister",[

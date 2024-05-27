@@ -25,50 +25,30 @@ const registerStudent = async (req, res) => {
   } = req.body;
   try {
     let student = await Student.findOne({ erpid });
-
-    
     if (student) {
       return res
         .status(400)
         .json({ error: [{ message: "Student already exists" }] });
     }
-
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(password, salt);
-
-
     const user = new User({
       erpid,
       password: hashPassword,
       isAdmin: false,
     });
-
-
     const hostel = await Hostel.findOne({ hostelname: hostelname });
-
     if (!hostel) {
       return res.status(400).json({ error: "Hostel not found" });
     }
-    
-
     let room = await Room.findOne({ roomNumber});
-    console.log(room)
-
     if (!room) {
       return res.status(400).json({ error: "Room not found" });
     }
-
     if (room.capacity < 1) {
       return res.status(400).json({ error: "Room capacity exceeded" });
     }
-    
-    
     room.capacity -= 1;
-    
-   
-    console.log(room.capacity)
-
-    
     student = new Student({
       name,
       erpid,

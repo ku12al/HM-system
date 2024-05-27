@@ -9,6 +9,19 @@ const hostelSchema = new mongoose.Schema({
             type:String,
             required:true
       },
+      rooms:[
+            {
+                  room:{
+                        type:mongoose.Schema.Types.ObjectId,
+                        ref:'room',
+                        required:true
+                  }
+            }
+      ],
+      capacity:{
+            type:Number,
+            required:true
+      }
 })
 
 module.exports = Hostel = mongoose.model('hostel', hostelSchema);

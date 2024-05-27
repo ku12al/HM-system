@@ -65,6 +65,10 @@ const studentSchema = new Schema({
             type: String,
             default: "user"
       },
+      leave:[{
+            type:mongoose.Schema.Types.ObjectId,
+            ref:'leave'
+      }],
       createdAt: {
             type: Date,
             default: Date.now(),
