@@ -28,7 +28,7 @@ const login = async(req, res) => {
     const token = generateToken(user._id, user.isAdmin);
     console.log(token);
 
-    res.status(400).json({
+    res.status(200).json({
       success: true,
       data: {
         token,

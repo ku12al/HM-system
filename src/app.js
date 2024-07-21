@@ -22,6 +22,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }))
 // Add cors middleware
 app.use(cors());
+app.use(express.json());
 
 //make apis
 app.use("/api/register", studentRoutes);

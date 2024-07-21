@@ -1,5 +1,5 @@
 const { validationResult } = require("express-validator");
-const { Hostel , Room } = require("../models/Index");
+const { Hostel, Room } = require("../models/index");
 
 const roomRegister = async (req, res) => {
   let success = false;
