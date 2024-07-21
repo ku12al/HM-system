@@ -43,4 +43,8 @@ const adminSchema = new Schema({
 });
 
 // Check if the model is already registered before defining it
-module.exports = mongoose.models.admin || mongoose.model('admin', adminSchema);
+const Admin = mongoose.models.Admin || mongoose.model('Admin', adminSchema);
+
+module.exports = Admin;
+
+// module.exports = mongoose.models.admin || mongoose.model('admin', adminSchema);

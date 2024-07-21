@@ -1,4 +1,4 @@
-const Admin = require('./warden');
+const Admin = require('./Warden');
 const Hostel = require("./Hostel");
 const Student = require('./Student');
 const User = require('./User');
@@ -7,7 +7,7 @@ const Complaint = require('./Complaint');
 const Leave = require('./Leave');
 const Request = require('./Request');
 const Room = require('./Rooms');
-const Warden = require("./warden");
+// const Warden = require("./warden");
 
 module.exports = {
     Admin,
@@ -19,5 +19,5 @@ module.exports = {
     Leave,
     Request,
     Room,
-    Warden
+    // Warden
 }

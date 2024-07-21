@@ -1,9 +1,10 @@
 const { validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
-const Admin = require("../models/Warden");
+// const admin = require("../models/Warden");
 const Hostel = require("../models/Hostel");
 const User = require("../models/User");
 const { generateToken } = require("../utils/auth");
+const { Admin } = require("../models/Index");
 
 
 // admin registration
