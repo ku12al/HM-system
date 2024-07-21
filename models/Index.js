@@ -1,5 +1,5 @@
 const Admin = require('./warden');
-const Hostel = require("./hostel");
+const Hostel = require("./Hostel");
 const Student = require('./Student');
 const User = require('./User');
 const Attendance = require('./Attendance');
