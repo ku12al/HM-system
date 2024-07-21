@@ -1,5 +1,5 @@
 const express = require("express");
-const { Student, Hostel, User, Room } = require("../models/index");
+const { Student, Hostel, User, Room } = require("../models/Index");
 const { validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const { verifyToken } = require("../utils/auth");
