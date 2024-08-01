@@ -30,4 +30,5 @@ roomsSchema.path('students').validate(function (value) {
       return value.length <= 4;
     }, 'Maximum length of students array is 4');
 
-module.exports = Room = mongoose.model("room", roomsSchema);
+    const Room = mongoose.model("Room", roomsSchema);
+module.exports = Room

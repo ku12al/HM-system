@@ -24,7 +24,7 @@ const registerStudent = async (req, res) => {
     roomNumber,
   } = req.body;
   try {
-    let student = await Student.findOne({ erpid });
+    const student = await Student.findOne({ erpid });
     if (student) {
       return res
         .status(400)

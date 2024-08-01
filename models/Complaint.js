@@ -4,17 +4,17 @@ const Schema = mongoose.Schema
 const complaintSchema = new Schema({
       student:{
             type:Schema.Types.ObjectId,
-            ref:'student'
+            ref:'Student'
       },
       hostel:{
             type:Schema.Types.ObjectId,
-            ref:'hostel'
+            ref:'Hostel'
+      },
+      room_no:{
+            type:Schema.Types.ObjectId,
+            ref:'Room'
       },
       type:{
-            type:String,
-            required:true
-      },
-      title:{
             type:String,
             required:true
       },

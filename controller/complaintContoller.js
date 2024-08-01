@@ -10,13 +10,13 @@ const registerComplaint = async (req, res) =>{
             return res.status(500).json({success, errors:errors.array()});
       }
 
-      const {student, hostel, type, title, description} = req.body;
+      const {student, hostel, room_no, type, description} = req.body;
       try{
             const newComplaint = new Complaint({
                   student:student.erpid,
                   hostel :hostel.hostelname,
+                  room_no:room_no.roomNumber,
                   type,
-                  title,
                   description
             })
             await newComplaint.save();
