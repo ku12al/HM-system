@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs");
 const Hostel = require("../models/Hostel");
 const User = require("../models/User");
 const { generateToken } = require("../utils/auth");
-const Warden= require("../models/Warden");
+const Warden = require("../models/Warden");
 
 
 // admin registration
@@ -26,14 +26,12 @@ const registerAdmin = async (req, res) => {
         .json({ success, error: [{ message: "Admin already exist" }] });
     }
 
-    console.log("kunal1");
     let shostel = await Hostel.findOne({ hostelname: hostel });
 
-    console.log("kunaln8");
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(password, salt);
 
-    console.log("kunal2");
+
 
     let user = new User({
       erpid,
@@ -41,11 +39,10 @@ const registerAdmin = async (req, res) => {
       isAdmin: true,
     });
 
-    console.log("kunal3");
 
-    await user.save();
 
-    admin = new Admin({
+
+    admin = new Warden({
       name,
       erpid,
       email,
@@ -54,16 +51,16 @@ const registerAdmin = async (req, res) => {
       user: user._id,
       hostel: shostel._id,
     });
-    console.log("kunal4");
 
-    await admin.save();
 
     const token = generateToken(user._id, user.isAdmin);
-    console.log("kunal5");
+
+    
+    await admin.save();
+    await user.save();
 
     success = true;
     res.status(200).json({ success, token, admin });
-    console.log("kunal6");
   } catch (error) {
     console.log(error.message);
     res.status(500).send("sever error");
