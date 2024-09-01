@@ -1,5 +1,8 @@
 const { validationResult } = require("express-validator");
-const { Attendance, Student, Room } = require("../models/Index");
+const Room = require("../models/Rooms");
+const Student = require("../models/Student");
+const Attendance = require("../models/Attendance");
+
 
 const markAttendance = async (req, res) => {
   try {
@@ -24,7 +27,7 @@ const markAttendance = async (req, res) => {
     if (!foundStudent) {
       return res.status(404).json({ success, error: "Student not found" });
     }
-    const alreadyAttendance = await Attendance.findOne({
+    const alreadyAttendance = await attendance.findOne({
       student: foundStudent._id,
       date: { $gte: date, $lt: endOfDay },
     });

@@ -33,5 +33,5 @@ const complaintSchema = new Schema({
 
 })
 
-module.exports = Complaint = mongoose.model('complaint', complaintSchema)
+module.exports = Complaint = mongoose.model('Complaint', complaintSchema)
 

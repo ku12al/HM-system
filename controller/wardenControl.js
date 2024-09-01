@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs");
 const Hostel = require("../models/Hostel");
 const User = require("../models/User");
 const { generateToken } = require("../utils/auth");
-const { Admin } = require("../models/Index");
+const Warden= require("../models/Warden");
 
 
 // admin registration
@@ -18,7 +18,7 @@ const registerAdmin = async (req, res) => {
   const { name, erpid, email, contact, address, password, hostel } = req.body;
 
   try {
-    let admin = await Admin.findOne({ erpid });
+    let admin = await Warden.findOne({ erpid });
 
     if (admin) {
       return res
