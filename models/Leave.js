@@ -49,4 +49,5 @@ const leaveSchema = new Schema({
       approvalDate: Date
 })
 
-module.exports = Leave = mongoose.model('Leave', leaveSchema);
+const Leave = mongoose.model('Leave', leaveSchema);
+module.exports = Leave;

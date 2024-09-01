@@ -6,7 +6,7 @@ const User = require("../models/User");
 const { generateToken } = require("../utils/auth");
 const Warden = require("../models/Warden");
 
-
+console.log(Warden);
 // admin registration
 const registerAdmin = async (req, res) => {
   let success = false;

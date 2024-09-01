@@ -25,6 +25,6 @@ const hostelSchema = new mongoose.Schema({
 });
 
 // Check if the model already exists before defining it
-const Hostel = mongoose.models.Hostel || mongoose.model('Hostel', hostelSchema);
+const Hostel = mongoose.model('Hostel', hostelSchema);
 
 module.exports = Hostel;

@@ -34,7 +34,6 @@ app.use("/api/hostel", hostels)
 app.use("/api/attendance", attendance)
 app.use("/api/admin", adminRoutes)
 app.use("/api/rooms", rooms)
-// app.use("/api/admin",)
 
 
 

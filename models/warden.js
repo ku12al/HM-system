@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const adminSchema = new Schema({
+const wardenSchema = new Schema({
     name: {
         type: String,
         required: true
@@ -43,6 +43,6 @@ const adminSchema = new Schema({
 });
 
 // Check if the model is already registered before defining it
-const Warden = mongoose.models.Warden || mongoose.model('Warden', adminSchema);
+const Warden = mongoose.model('Warden', wardenSchema);
 
 module.exports = Warden;
