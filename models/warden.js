@@ -46,5 +46,3 @@ const adminSchema = new Schema({
 const Warden = mongoose.models.Warden || mongoose.model('Warden', adminSchema);
 
 module.exports = Warden;
-
-// module.exports = mongoose.models.admin || mongoose.model('admin', adminSchema);

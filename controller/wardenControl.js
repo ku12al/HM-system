@@ -80,7 +80,7 @@ const loginAdmin = async (req, res) => {
   const { erpid, password } = req.body;
 
   try {
-    const admin = await Admin.findOne({ erpid });
+    const admin = await Warden.findOne({ erpid });
 
     if (!admin) {
       return res
