@@ -1,8 +1,11 @@
 const express = require("express");
-const { Student, Hostel, User, Room } = require("../models/Index");
 const { validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const { verifyToken } = require("../utils/auth");
+const Student = require("../models/Student");
+const Hostel = require("../models/Hostel");
+const Room = require("../models/Rooms");
+const User = require("../models/User");
 
 
 //new registration for student ------
@@ -23,33 +26,47 @@ const registerStudent = async (req, res) => {
     hostelname,
     roomNumber,
   } = req.body;
+
   try {
-    const student = await Student.findOne({ erpid });
-    if (student) {
-      return res
-        .status(400)
-        .json({ error: [{ message: "Student already exists" }] });
+    // Check if the student already exists
+    const existingStudent = await Student.findOne({ erpid });
+    if (existingStudent) {
+      return res.status(400).json({ error: [{ message: "Student already exists" }] });
     }
+
+    // Hash the password
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(password, salt);
+
+    // Create the user
     const user = new User({
       erpid,
       password: hashPassword,
       isAdmin: false,
     });
-    const hostel = await Hostel.findOne({ hostelname: hostelname });
+
+    // Find the hostel
+    const hostel = await Hostel.findOne({ hostelname });
     if (!hostel) {
       return res.status(400).json({ error: "Hostel not found" });
     }
+
+    // Find the room
     let room = await Room.findOne({ roomNumber});
     if (!room) {
       return res.status(400).json({ error: "Room not found" });
     }
-    if (room.capacity < 1) {
+
+    // Check room capacity
+    if (room.capacity < 1 || room.students.length >= 4) {
       return res.status(400).json({ error: "Room capacity exceeded" });
     }
+
+    // Decrease room capacity
     room.capacity -= 1;
-    student = new Student({
+
+    // Create the student
+    const student = new Student({
       name,
       erpid,
       gender,
@@ -63,13 +80,16 @@ const registerStudent = async (req, res) => {
       dob,
       user: user._id,
       hostel: hostel._id,
-      room: room._id
+      room: room._id,
     });
+
+    // Save all changes
     await student.save();
     await user.save();
-    room.students.push({student:student._id})
+    room.students.push({ student: student._id });
     await room.save();
-    
+
+    // Respond with the newly created student
     res.status(201).json({ student });
   } catch (err) {
     console.error(err);
@@ -80,14 +100,10 @@ const registerStudent = async (req, res) => {
 
 
 
+
+
 const getStudent = async (req, res) => {
   try {
-    let success = false;
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ success, errors: errors.array() });
-    }
     const { isAdmin } = req.body;
     if (isAdmin) {
       return res

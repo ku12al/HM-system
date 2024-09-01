@@ -3,15 +3,8 @@ const Complaint = require("../models/Complaint");
 
 
 const registerComplaint = async (req, res) =>{
-      let success = false
-      const errors = validationResult(req)
-
-      if(!errors.isEmpty()){
-            return res.status(500).json({success, errors:errors.array()});
-      }
-
-      const {student, hostel, room_no, type, description} = req.body;
       try{
+            const {student, hostel, room_no, type, description} = req.body;
             const newComplaint = new Complaint({
                   student:student.erpid,
                   hostel :hostel.hostelname,
@@ -31,13 +24,6 @@ const registerComplaint = async (req, res) =>{
 
 
 const getByHostel = async (req, res) =>{
-      let success = false
-      const errors = validationResult(req);
-
-      if(!errors.isEmpty()){
-            return res.status(500).json({errors: errors.array(), success});
-      }
-
       const {hostel}= req.body;
 
       try{
@@ -52,11 +38,6 @@ const getByHostel = async (req, res) =>{
 
 
 const getByStudent = async (req, res) => {
-      let success = false;
-      const errors = validationResult();
-      if(!errors.isEmpty()){
-            return res.status(500).json({errors: errors.array(), success})
-      }
       const {student} = req.body;
       try{
             const complaints = await Complaint.find({student});

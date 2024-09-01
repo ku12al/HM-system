@@ -48,27 +48,23 @@ const studentSchema = new Schema({
       },
       user:{
             type:Schema.Types.ObjectId,
-            ref:'user',
+            ref:'User',
             required: true
       },
       hostel:{
             type:Schema.Types.ObjectId,
-            ref:'hostel',
+            ref:'Hostel',
             required: true
       },
       room: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'room',
+            ref: 'Room',
             required: true
       },
       role: {
             type: String,
             default: "user"
       },
-      leave:[{
-            type:mongoose.Schema.Types.ObjectId,
-            ref:'leave'
-      }],
       createdAt: {
             type: Date,
             default: Date.now(),
