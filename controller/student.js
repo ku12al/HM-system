@@ -164,13 +164,16 @@ const getAllStudent = async (req, res) => {
 
 
 
-
-//update student information
+//update students
 const updatesStudent = async (req, res) => {
   let success = false;
   try {
-    const student = await Student.findById(req.student.id).select("-password");
-    console.log(student);
+    const student = await Student.findById(req.body.id).select("-password");
+
+    // Check if student exists
+    if (!student) {
+      return res.status(404).json({ success: false, errors: [{ message: "Student not found" }] });
+    }
 
     const {
       name,
@@ -184,22 +187,22 @@ const updatesStudent = async (req, res) => {
       father_name,
       address,
       dob,
-      // password,
       hostel,
     } = req.body;
 
-    student.name = name;
-    student.erpid = erpid;
-    student.email = email;
-    student.phone = phone;
-    student.room = room;
-    student.year = year;
-    student.dept = dept;
-    student.course = course;
-    student.father_name = father_name;
-    student.address = address;
-    student.dob = dob;
-    student.hostel = hostel;
+    // Optional: Add checks for the fields you expect to update
+    if (name) student.name = name;
+    if (erpid) student.erpid = erpid;
+    if (email) student.email = email;
+    if (phone) student.phone = phone;
+    if (room) student.room = room;
+    if (year) student.year = year;
+    if (dept) student.dept = dept;
+    if (course) student.course = course;
+    if (father_name) student.father_name = father_name;
+    if (address) student.address = address;
+    if (dob) student.dob = dob;
+    if (hostel) student.hostel = hostel;
 
     await student.save();
 
@@ -207,7 +210,7 @@ const updatesStudent = async (req, res) => {
     res.json({ success, student });
   } catch (err) {
     console.log(err.message);
-    res.status(200).json({ success, errors: [{ message: "server error" }] });
+    res.status(500).json({ success: false, errors: [{ message: "server error" }] });
   }
 };
 
