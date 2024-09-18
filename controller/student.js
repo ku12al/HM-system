@@ -152,11 +152,9 @@ const getAllStudent = async (req, res) => {
   }
 
   const { hostel } = req.body;
-  console.log(req.body)
 
   try {
     // Find hostel
-    console.log(Hostel);
     const shostel = await Hostel.findOne({hostelname: hostel});
 
     
@@ -171,7 +169,6 @@ const getAllStudent = async (req, res) => {
     success = true;
     res.json({ success, students });
   } catch (err) {
-    console.log(err.message);
     // Return 500 status on server error
     res.status(500).json({ success: false, errors: [{ message: "server error" }] });
   }
@@ -254,7 +251,6 @@ const deleteStudent = async (req, res) => {
 
     // Find and delete the associated user
     const user = await User.findByIdAndDelete(student.user);
-    console.log(user)
     if (!user) {
       return res.status(400).json({ success, error: { message: "Associated user not found" } });
     }
