@@ -51,18 +51,27 @@ const registerStudent = async (req, res) => {
       return res.status(400).json({ error: "Hostel not found" });
     }
 
-    // Find the room
-    let room = await Room.findOne({ roomNumber});
+    // Find the room, or create a new one if it doesn't exist
+    let room = await Room.findOne({ roomNumber });
     if (!room) {
-      return res.status(400).json({ error: "Room not found" });
+      // Create a new room with an initial capacity of 4 students
+      room = new Room({
+        roomNumber,
+        capacity: 4,
+        students: [],
+        hostel: hostel._id,
+      });
+
+      // Save the newly created room to the database
+      await room.save();
     }
 
     // Check room capacity
-    if (room.capacity < 1 || room.students.length >= 4) {
+    if (room.students.length >= room.capacity) {
       return res.status(400).json({ error: "Room capacity exceeded" });
     }
 
-    // Decrease room capacity
+    // Decrease room capacity (optional: depending on your design, you may not need this since capacity is derived from students.length)
     room.capacity -= 1;
 
     // Create the student
@@ -101,7 +110,6 @@ const registerStudent = async (req, res) => {
 
 
 
-
 const getStudent = async (req, res) => {
   try {
     const { isAdmin } = req.body;
@@ -133,33 +141,42 @@ const getStudent = async (req, res) => {
 
 
 
-
-//get all student of data
+//get all hostel
 const getAllStudent = async (req, res) => {
   let success = false;
   const errors = validationResult(req);
 
+  // Validation errors
   if (!errors.isEmpty()) {
     return res.status(400).json({ success, errors: errors.array() });
   }
 
   const { hostel } = req.body;
+  console.log(req.body)
 
   try {
-    const shostel = await Hostel.findOne({ hostel });
+    // Find hostel
+    console.log(Hostel);
+    const shostel = await Hostel.findOne({hostelname: hostel});
 
+    
+    // If hostel doesn't exist
+    if (!shostel) {
+      return res.status(404).json({ success: false, errors: [{ message: "Hostel not found" }] });
+    }
+
+    // Find all students in that hostel
     const students = await Student.find({ hostel: shostel._id }).select("-password");
 
     success = true;
     res.json({ success, students });
-  } catch {
-    err;
-  }
-  {
+  } catch (err) {
     console.log(err.message);
-    res.status(200).json({ success, errors: [{ message: "server error" }] });
+    // Return 500 status on server error
+    res.status(500).json({ success: false, errors: [{ message: "server error" }] });
   }
 };
+
 
 
 
