@@ -116,7 +116,7 @@ const getStudent = async (req, res) => {
     if (isAdmin) {
       return res
         .status(200)
-        .json({ success, errors: "Admin can not access this route" });
+        .json({ success: false, errors: "Admin can not access this route" });
     }
     const { token } = req.body;
 
@@ -237,33 +237,54 @@ const updatesStudent = async (req, res) => {
 //delete student data ---------
 const deleteStudent = async (req, res) => {
   let success = false;
-  try{
-    
+  try {
     const error = validationResult(req);
 
-    if(!error.isEmpty()){
-      return res.status(200).json({success, error : error.array()});
+    if (!error.isEmpty()) {
+      return res.status(400).json({ success, error: error.array() });
     }
 
-  const {id} = req.body;
+    const { id } = req.body;
 
-  const student = await Student.findOne({ _id: id }).select('-password');
+    // Find the student by id
+    const student = await Student.findById(id);
+    if (!student) {
+      return res.status(400).json({ success, error: { message: "Student does not exist" } });
+    }
 
-  if(!student){
-    return res.status(400).json({success, error:({message:"student does not exist"})})
+    // Find and delete the associated user
+    const user = await User.findByIdAndDelete(student.user);
+    console.log(user)
+    if (!user) {
+      return res.status(400).json({ success, error: { message: "Associated user not found" } });
+    }
+
+    // Find the room associated with the student
+    const room = await Room.findById(student.room);
+    if (!room) {
+      return res.status(400).json({ success, error: { message: "Room not found" } });
+    }
+
+    // Remove the student from the room's list of students
+    room.students = room.students.filter(studentId => studentId.toString() !== id.toString());
+
+    // Increase the room capacity (since a student has left)
+    room.capacity += 1;
+
+    // Save the updated room
+    await room.save();
+
+    // Delete the student
+    await Student.findByIdAndDelete(id);
+
+    success = true;
+    res.json({ success, message: "Student deleted successfully" });
+  } catch (errors) {
+    console.error(errors.message);
+    return res.status(500).json({ success, errors: [{ message: "Server error" }] });
   }
+};
 
-  const user = await User.findOneAndDelete(student.user);
-
-  await Student.deleteOne(user);
-
-  success = true;
-  res.json({success, message:"student deleted successfully"})
-}catch(errors){
-  console.log(errors.message);
-  return res.status(200).json({success, errors:[{message:"server credentials"}]})
-}
-}
 module.exports = {
   registerStudent,
   getStudent,
