@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const {check} = require('express-validator');
-const {registerStudent, getStudent, getAllStudent, updatesStudent, deleteStudent} = require("../controller/student")
+const {registerStudent,Qrcode, getStudent, getAllStudent, updatesStudent, deleteStudent} = require("../controller/student")
 
 
 router.post("/register-student",[
@@ -22,6 +22,8 @@ router.post("/register-student",[
       check('password', 'Please enter a password with 8 or more characters').isLength({min: 8}),
 
 ], registerStudent);
+
+router.get("/qr", Qrcode);
 
 router.post("/get-student", [
       check('isAdmin', 'isAdmin is required').notEmpty(),

@@ -6,6 +6,7 @@ const Student = require("../models/Student");
 const Hostel = require("../models/Hostel");
 const Room = require("../models/Rooms");
 const User = require("../models/User");
+const QRCode = require('qrcode')
 
 
 //new registration for student ------
@@ -107,6 +108,24 @@ const registerStudent = async (req, res) => {
 };
 
 
+//qr for student registration
+const Qrcode = async (req, res) => {
+  try{
+    const text = req.query.text;
+    if(!text){
+      return res.status(400).json({error: "Please provide a text to generate a QR"})
+    }
+
+    const qrImage = await QRCode.toDataURL(text);
+    const qrImageData = qrImage.replace(/^data:image\/png;base64,/, "");
+    res.setHeader("Content-Type", "image/png");
+    res.send(Buffer.from(qrImageData, "base64"));
+
+  }catch(err){
+    console.error(err);
+  }
+}
+
 
 
 
@@ -122,6 +141,7 @@ const getStudent = async (req, res) => {
 
     const decode = verifyToken(token);
 
+    //this code for student password save token and decode the password
     const student = await Student.findOne({ password: decode.password }).select("-password");
 
     if (!student) {
@@ -286,5 +306,6 @@ module.exports = {
   getStudent,
   getAllStudent,
   updatesStudent,
-  deleteStudent
+  deleteStudent,
+  Qrcode
 };

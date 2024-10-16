@@ -14,7 +14,7 @@ const complaint = require("../routes/complaintRoutes")
 const leave = require("../routes/leaveRoutes")
 const hostels = require("../routes/hostelRoutes")
 const attendance = require("../routes/attendanceRouter")
-// const adminRoutes = require("../routes/adminRoutes")
+const adminRoutes = require("../routes/adminRoutes")
 const rooms = require("../routes/roomsRoutes")
 
 // Add body parsing middleware
@@ -32,7 +32,7 @@ app.use("/api/complaint", complaint);
 app.use("/api/leave", leave);
 app.use("/api/hostel", hostels)
 app.use("/api/attendance", attendance)
-// app.use("/api/admin", adminRoutes)
+app.use("/api/admin", adminRoutes)
 app.use("/api/rooms", rooms)
 
 

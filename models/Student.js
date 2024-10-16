@@ -63,7 +63,7 @@ const studentSchema = new Schema({
       },
       role: {
             type: String,
-            default: "user"
+            default: "User"
       },
       createdAt: {
             type: Date,
