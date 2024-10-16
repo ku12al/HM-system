@@ -145,12 +145,12 @@ const Qrcode = async (req, res) => {
 const getStudent = async (req, res) => {
   try {
     //check student or warden credential
-    const { isAdmin } = req.body;
-    if (isAdmin) {
-      return res
-        .status(200)
-        .json({ success: false, errors: "Admin can not access this route" });
-    }
+    // const { isAdmin } = req.body;
+    // if (isAdmin) {
+    //   return res
+    //     .status(200)
+    //     .json({ success: false, errors: "Admin can not access this route" });
+    // }
     const { token } = req.body;
 
     const decode = verifyToken(token);
