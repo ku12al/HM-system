@@ -153,24 +153,31 @@ const getStudent = async (req, res) => {
     }
     const { token } = req.body;
 
-    const decode = verifyToken(token);
+   // Verify the token
+   const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    //this code for student password saved in token and decode the password
-    const student = await Student.findOne({ password: decode.password }).select("-password");
+   // Check if the user is an admin
+   if (decoded.isAdmin) {
+     return res
+       .status(403)
+       .json({ success: false, error: "Admin cannot access student data" });
+   }
 
-    // If student is not found
-    if (!student) {
-      return res.status(404).json({ success: false, errors: "Student not found" });
-    }
+   // Find the student by user ID
+   const student = await Student.findOne({ user: decoded.id }).select("-password");
 
-    // Send the student data including the QR code
-    res.json({
-      success: true,
-      student: {
-        ...student._doc, // Spread student data
-        qrCode: student.qrCode, // Include QR code
-      },
-    });
+   if (!student) {
+     return res.status(404).json({ success: false, error: "Student not found" });
+   }
+
+   // Respond with student data including the QR code
+   res.json({
+     success: true,
+     student: {
+       ...student._doc,
+       qrCode: student.qrCode,
+     },
+   });
   } catch (err) {
     console.log(err);
     res.status(500).json({ success: false, errors: "server error" });
