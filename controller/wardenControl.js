@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs");
 const Hostel = require("../models/Hostel");
 const User = require("../models/User");
 const { generateToken } = require("../utils/auth");
-const Warden = require("../models/Warden");
+const Warden = require("../models/Warden.js");
 // admin registration
 const registerAdmin = async (req, res) => {
   let success = false;
