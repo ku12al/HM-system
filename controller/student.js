@@ -55,15 +55,12 @@ const registerStudent = async (req, res) => {
     // Find the room, or create a new one if it doesn't exist
     let room = await Room.findOne({ roomNumber });
     if (!room) {
-      // Create a new room with an initial capacity of 4 students
       room = new Room({
         roomNumber,
         capacity: 4,
         students: [],
         hostel: hostel._id,
       });
-
-      // Save the newly created room to the database
       await room.save();
     }
 
@@ -72,8 +69,18 @@ const registerStudent = async (req, res) => {
       return res.status(400).json({ error: "Room capacity exceeded" });
     }
 
-    // Decrease room capacity (optional: depending on your design, you may not need this since capacity is derived from students.length)
-    room.capacity -= 1;
+    // QR Code generation
+    let qrImageData;
+    try {
+      const qrText = erpid.toString();
+      const qrImage = await QRCode.toDataURL(qrText);
+
+      // Base64 encoding to send as image
+      qrImageData = qrImage.replace(/^data:image\/png;base64,/, "");
+
+    } catch (qrError) {
+      return res.status(500).json({ error: "Failed to generate QR code" });
+    }
 
     // Create the student
     const student = new Student({
@@ -91,21 +98,27 @@ const registerStudent = async (req, res) => {
       user: user._id,
       hostel: hostel._id,
       room: room._id,
+      qrCode: qrImageData,
     });
 
     // Save all changes
-    await student.save();
     await user.save();
+    await student.save();
     room.students.push({ student: student._id });
     await room.save();
 
-    // Respond with the newly created student
-    res.status(201).json({ student });
+    // Set the response header to indicate that this is an image
+    res.setHeader("Content-Type", "image/png");
+
+    // Send the image as a Buffer
+    res.send(Buffer.from(qrImageData, "base64"));
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server error" });
   }
 };
+
 
 
 //qr for student registration
@@ -145,14 +158,19 @@ const getStudent = async (req, res) => {
     //this code for student password saved in token and decode the password
     const student = await Student.findOne({ password: decode.password }).select("-password");
 
+    // If student is not found
     if (!student) {
-      return res
-        .status(400)
-        .json({ success: false, errors: "Student not found" });
+      return res.status(404).json({ success: false, errors: "Student not found" });
     }
 
-    success = true;
-    res.json({ success, student });
+    // Send the student data including the QR code
+    res.json({
+      success: true,
+      student: {
+        ...student._doc, // Spread student data
+        qrCode: student.qrCode, // Include QR code
+      },
+    });
   } catch (err) {
     console.log(err);
     res.status(500).json({ success: false, errors: "server error" });
@@ -285,7 +303,7 @@ const deleteStudent = async (req, res) => {
     // Remove the student from the room's list of students
     room.students = room.students.filter(studentId => studentId.toString() !== id.toString());
 
-    // Increase the room capacity (since a student has left)
+    // Increase the room capacity (optional: depends on how you manage room capacity)
     room.capacity += 1;
 
     // Save the updated room
@@ -297,8 +315,8 @@ const deleteStudent = async (req, res) => {
     success = true;
     res.json({ success, message: "Student deleted successfully" });
   } catch (errors) {
-    console.error(errors.message);
-    return res.status(500).json({ success, errors: [{ message: "Server error" }] });
+    console.error(errors); // Log full error object to capture any possible issues
+    return res.status(500).json({ success: false, errors: [{ message: "Server error" }] });
   }
 };
 

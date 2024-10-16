@@ -3,7 +3,7 @@ const { check } = require('express-validator');
 const { registerAdmin, loginAdmin } = require('../controller/wardenControl');
 const router = express.Router();
 
-router.post("/adminregister",[
+router.post("/admin-register",[
       check("name", "name is required").not().isEmpty(),
       check("erpid", "erpid is required").not().isEmpty(),
       check("email", "email is required").not().isEmpty(),
@@ -13,7 +13,7 @@ router.post("/adminregister",[
       check("hostel", "hostel is required").not().isEmpty(),
 ], registerAdmin);
 
-router.post("/adminLogin",[
+router.post("/admin-Login",[
       check('erpid', "erpid id not correct").not().isEmpty(),
       check('password', "password is required").not().isEmpty()
 ], loginAdmin);

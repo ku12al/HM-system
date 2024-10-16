@@ -1,12 +1,10 @@
 const express = require('express');
-const { check } = require('express-validator');
-const { markAttendance } = require('../controller/attendanceController');
+const { markPresent, markAbsent, checkAttendance} = require('../controller/attendanceController');
 const router = express.Router();
 
-router.post("/markattendance", [
-      check('roomNumber', "roomNumber is required").not().isEmpty(),
-      check('student', "student is required").not().isEmpty(),
-      check('status', "status is required").not().isEmpty()
-], markAttendance)
+router.post("/mark-present", markPresent);
+router.get("/attendence-check", checkAttendance);
+router.post("/mark-absent", markAbsent)
+
 
 module.exports = router

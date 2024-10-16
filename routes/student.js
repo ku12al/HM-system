@@ -25,7 +25,7 @@ router.post("/register-student",[
 
 router.get("/qr", Qrcode);
 
-router.post("/get-student", [
+router.get("/get-student", [
       check('isAdmin', 'isAdmin is required').notEmpty(),
       check('token', 'You donot have a valid token').notEmpty()
 ], getStudent)

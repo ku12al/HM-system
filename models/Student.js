@@ -61,6 +61,10 @@ const studentSchema = new Schema({
             ref: 'Room',
             required: true
       },
+      qrCode:{
+            type:String,
+            required: true,
+      },
       role: {
             type: String,
             default: "User"

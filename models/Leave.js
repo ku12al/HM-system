@@ -37,7 +37,7 @@ const leaveSchema = new Schema({
       },
       status:{
             type:String,
-            default:'pending'
+            enum:'pending' || 'approved' || 'decline'
       },
       qrcode:{
             type:String,

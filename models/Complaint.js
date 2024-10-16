@@ -24,7 +24,8 @@ const complaintSchema = new Schema({
       },
       status:{
             type:String,
-            default:'pending'
+            enum:'pending' || 'approved' || 'decline',
+            default: 'pending'
       },
       date:{
             type:Date,
