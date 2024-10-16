@@ -45,4 +45,4 @@ const wardenSchema = new Schema({
 // Check if the model is already registered before defining it
 const Warden = mongoose.model('Warden', wardenSchema);
 
-module.exports = Warden;
+module.exports = Warden
