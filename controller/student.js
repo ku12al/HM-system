@@ -154,7 +154,6 @@ const getStudent = async (req, res) => {
     const { token } = req.body;
 
     const decode = verifyToken(token);
-    console.log(decode);
 
     // Check if the user is an admin
     if (decode.isAdmin) {
@@ -164,7 +163,6 @@ const getStudent = async (req, res) => {
     }
     //this code for student password saved in token and decode the password
     const student = await Student.findOne({ user: decode.userId })
-    console.log(student)
 
     // If student is not found
     if (!student) {
