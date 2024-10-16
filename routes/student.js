@@ -25,10 +25,7 @@ router.post("/register-student",[
 
 router.get("/qr", Qrcode);
 
-router.get("/get-student", [
-      check('isAdmin', 'isAdmin is required').notEmpty(),
-      check('token', 'You donot have a valid token').notEmpty()
-], getStudent)
+router.get("/get-student", getStudent)
 
 router.post("/get-all-student",[
       check('hostel', 'Hostel is required').not().isEmpty()
