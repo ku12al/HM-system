@@ -128,9 +128,10 @@ const Qrcode = async (req, res) => {
 
 
 
-
+//get student data through student passwrod tokken
 const getStudent = async (req, res) => {
   try {
+    //check student or warden credential
     const { isAdmin } = req.body;
     if (isAdmin) {
       return res
@@ -141,7 +142,7 @@ const getStudent = async (req, res) => {
 
     const decode = verifyToken(token);
 
-    //this code for student password save token and decode the password
+    //this code for student password saved in token and decode the password
     const student = await Student.findOne({ password: decode.password }).select("-password");
 
     if (!student) {
