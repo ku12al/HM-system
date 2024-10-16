@@ -1,10 +1,9 @@
 const { validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
-// const admin = require("../models/Warden");
 const Hostel = require("../models/Hostel");
 const User = require("../models/User");
 const { generateToken } = require("../utils/auth");
-const Warden = require("../models/Warden.js");
+const Warden = require("../models/Warden")
 // admin registration
 const registerAdmin = async (req, res) => {
   let success = false;
