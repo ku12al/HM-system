@@ -10,14 +10,12 @@ const login = async(req, res) => {
 
   try {
     const user = await User.findOne({ erpid });
-    console.log("jnose")
 
     if (!user) {
       return res
         .status(400)
         .json({ success:false, error: [{ message: "user not found" }] });
     }
-    console.log("jnose")
 
 
     const isMatch = await bcrypt.compare(password, user.password);
