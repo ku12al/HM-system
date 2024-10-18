@@ -2,7 +2,7 @@ const { validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const Hostel = require("../models/Hostel");
 const User = require("../models/User");
-const { generateToken } = require("../utils/auth");
+const { generateToken, verifyToken } = require("../utils/auth");
 const Warden = require("../models/Warden")
 // admin registration
 const registerAdmin = async (req, res) => {
@@ -67,54 +67,93 @@ const registerAdmin = async (req, res) => {
 
 
 //admin login 
-const loginAdmin = async (req, res) => {
-  let success = false;
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
+// const loginAdmin = async (req, res) => {
+//   let success = false;
+//   const errors = validationResult(req);
+//   if (!errors.isEmpty()) {
+//     return res.status(400).json({ errors: errors.array() });
+//   }
 
-  const { erpid, password } = req.body;
+//   const { erpid, password } = req.body;
 
-  try {
-    const admin = await Warden.findOne({ erpid });
+//   try {
+//     const admin = await Warden.findOne({ erpid });
 
-    if (!admin) {
-      return res
-        .status(400)
-        .json({ success: false, error: [{ message: "Admin not found" }] });
+//     if (!admin) {
+//       return res
+//         .status(400)
+//         .json({ success: false, error: [{ message: "Admin not found" }] });
+//     }
+
+//     const isMatch = await bcrypt.compare(password, admin.password);
+
+//     if (!isMatch) {
+//       return res
+//         .status(404)
+//         .json({ success: false, error: [{ message: "Admin not valid" }] });
+//     }
+
+//     const token = generateToken(admin._id, admin.isAdmin);
+
+//     res.status(400).json({
+//       success: true,
+//       data: {
+//         token,
+//         admin: {
+//           id: admin._id,
+//           erpid: admin.erpid,
+//           isAdmin: admin.isAdmin,
+//         },
+//       },
+//     });
+//   } catch (error) {
+//     console.log(error.message);
+//     return res.status(200).send("server error");
+//   }
+// };
+
+
+const getWardenData = async(req, res) => {
+  try{
+    const { token }= req.body;
+
+    const decode = verifyToken(token);
+    console.log(decode.isAdmin)
+
+    if(!decode.isAdmin){
+      return res.status(200).json({success: false, message: "Admin can't access this route"})
     }
 
-    const isMatch = await bcrypt.compare(password, admin.password);
+    //this code for student password saved in token and decode the password
+    const warden = await Warden.findOne({ user: decode.userId })
 
-    if (!isMatch) {
-      return res
-        .status(404)
-        .json({ success: false, error: [{ message: "Admin not valid" }] });
+    // If student is not found
+    if (!warden) {
+      return res.status(404).json({ success: false, errors: "warden not found" });
     }
 
-    const token = generateToken(admin._id, admin.isAdmin);
-
-    res.status(400).json({
+    // Send the warden data including the QR code
+    res.json({
       success: true,
-      data: {
-        token,
-        admin: {
-          id: admin._id,
-          erpid: admin.erpid,
-          isAdmin: admin.isAdmin,
-        },
+      warden: {
+        ...warden._doc, // Spread warden data
       },
     });
-  } catch (error) {
-    console.log(error.message);
-    return res.status(200).send("server error");
+
+
+
+
+
+  }catch(err){
+    console.log(err);
+    return res.status(500).send("server error");
   }
-};
+
+}
 
 
 
 module.exports = {
   registerAdmin,
-  loginAdmin,
+  getWardenData
 };

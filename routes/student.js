@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const {check} = require('express-validator');
-const {registerStudent,Qrcode, getStudent, getAllStudent, updatesStudent, deleteStudent} = require("../controller/student")
+const {registerStudent,Qrcode, getStudent,getRoomDetails, updatesStudent, deleteStudent} = require("../controller/student")
 
 
 router.post("/register-student",[
@@ -27,9 +27,7 @@ router.get("/qr", Qrcode);
 
 router.get("/get-student", getStudent)
 
-router.post("/get-all-student",[
-      check('hostel', 'Hostel is required').not().isEmpty()
-], getAllStudent)
+router.get("/get-room-details", getRoomDetails);
 
 router.post("/update-student",[
       check('name', 'Name is required').not().isEmpty(),

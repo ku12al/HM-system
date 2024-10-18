@@ -144,16 +144,10 @@ const Qrcode = async (req, res) => {
 //get student data through student passwrod tokken
 const getStudent = async (req, res) => {
   try {
-    // check student or warden credential
-    const { isAdmin } = req.body;
-    if (isAdmin) {
-      return res
-        .status(200)
-        .json({ success: false, errors: "Admin can not access this route" });
-    }
     const { token } = req.body;
 
     const decode = verifyToken(token);
+    console.log(decode)
 
     // Check if the user is an admin
     if (decode.isAdmin) {
@@ -172,10 +166,7 @@ const getStudent = async (req, res) => {
     // Send the student data including the QR code
     res.json({
       success: true,
-      student: {
-        ...student._doc, // Spread student data
-        qrCode: student.qrCode, // Include QR code
-      },
+      student
     });
   } catch (err) {
     console.log(err);
@@ -185,41 +176,29 @@ const getStudent = async (req, res) => {
 
 
 
+const getRoomDetails = async (req, res) => {
+  try{
 
-//get all hostel
-const getAllStudent = async (req, res) => {
-  let success = false;
-  const errors = validationResult(req);
+    const { erpid } = req.body;
 
-  // Validation errors
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ success, errors: errors.array() });
-  }
+    const student = await Student.findOne({erpid});
 
-  const { hostel } = req.body;
+    console.log(student);
 
-  try {
-    // Find hostel
-    const shostel = await Hostel.findOne({hostelname: hostel});
-
-    
-    // If hostel doesn't exist
-    if (!shostel) {
-      return res.status(404).json({ success: false, errors: [{ message: "Hostel not found" }] });
+    if(!student){
+      return res.status(500).json({success: false, error: "student not exists"})
     }
 
-    // Find all students in that hostel
-    const students = await Student.find({ hostel: shostel._id }).select("-password");
+    
 
-    success = true;
-    res.json({ success, students });
-  } catch (err) {
-    // Return 500 status on server error
-    res.status(500).json({ success: false, errors: [{ message: "server error" }] });
+
+
+
+  }catch(error){
+    console.error(error);
+    return res.status(500).json({success: false, errors: "server error"});
   }
-};
-
-
+}
 
 
 
@@ -329,7 +308,7 @@ const deleteStudent = async (req, res) => {
 module.exports = {
   registerStudent,
   getStudent,
-  getAllStudent,
+  getRoomDetails,
   updatesStudent,
   deleteStudent,
   Qrcode

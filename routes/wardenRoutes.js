@@ -1,6 +1,6 @@
 const express = require('express');
 const { check } = require('express-validator');
-const { registerAdmin, loginAdmin } = require('../controller/wardenControl');
+const { registerAdmin,  getWardenData} = require('../controller/wardenControl');
 const router = express.Router();
 
 router.post("/admin-register",[
@@ -13,10 +13,12 @@ router.post("/admin-register",[
       check("hostel", "hostel is required").not().isEmpty(),
 ], registerAdmin);
 
-router.post("/admin-Login",[
-      check('erpid', "erpid id not correct").not().isEmpty(),
-      check('password', "password is required").not().isEmpty()
-], loginAdmin);
+// router.post("/admin-Login",[
+//       check('erpid', "erpid id not correct").not().isEmpty(),
+//       check('password', "password is required").not().isEmpty()
+// ], loginAdmin);
+
+router.get("/get-warden", getWardenData);
 
 
 module.exports = router;

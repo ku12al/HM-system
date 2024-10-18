@@ -1,5 +1,9 @@
 const { validationResult } = require("express-validator");
 const Leave = require("../models/Leave");
+const QRCode = require('qrcode');
+const Room = require("../models/Rooms");
+const Hostel = require("../models/Hostel");
+const Attendance = require("../models/Attendance");
 
 const leaveRequest = async (req, res) => {
   success = false;
@@ -9,7 +13,6 @@ const leaveRequest = async (req, res) => {
   }
   const {
     erpid,
-    student,
     roomNumber,
     hostelname,
     parentName,
@@ -81,11 +84,22 @@ const approveLeave = async (req, res) => {
     leave.status = "Approved";
     leave.approvalDate = new Date();
 
+    await leave.save();
+
+    // Mark attendance as leave
+    const attendance = new Attendance({
+      student: leave.student,
+      status: 'leave',
+      date: new Date(),
+    });
+    await attendance.save();
+
+
     const qrCodeData = `${leave.student.erpid}-${leave.approvalDate.getTime()}`;
     const qrCode = await QRCode.toDataURL(qrCodeData);
 
-    //   leave.qrCode = qrCode;
-    //   await leave.save();
+      // leave.qrCode = qrCode;
+      // await leave.save();
 
     res
       .status(200)
@@ -101,6 +115,9 @@ const approveLeave = async (req, res) => {
   }
 };
 
+
+
+//get all leave data 
 const getLeaveDetails = async (req, res) => {
   const { erpid } = req.params;
 
