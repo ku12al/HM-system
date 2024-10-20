@@ -30,14 +30,15 @@ const login = async(req, res) => {
 
     res.status(200).json({
       success: true,
-      data: {
-        token,
-        user: {
-          id: user._id,
-          erpid: user.erpid,
-          isAdmin: user.isAdmin,
-        },
-      },
+      // data: {
+      //   token,
+      //   user: {
+      //     id: user._id,
+      //     erpid: user.erpid,
+      //     isAdmin: user.isAdmin,
+      //   },
+      // },
+      user
     });
   } catch (err) {
     console.log(err.message);

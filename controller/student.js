@@ -144,19 +144,19 @@ const Qrcode = async (req, res) => {
 //get student data through student passwrod tokken
 const getStudent = async (req, res) => {
   try {
-    const { token } = req.body;
+    const { userId } = req.body;
 
-    const decode = verifyToken(token);
-    console.log(decode)
+    // const decode = verifyToken(token);
+    // console.log(decode)
 
-    // Check if the user is an admin
-    if (decode.isAdmin) {
-      return res
-        .status(403)
-        .json({ success: false, error: "Admin cannot access student data" });
-    }
+    // // Check if the user is an admin
+    // if (decode.isAdmin) {
+    //   return res
+    //     .status(403)
+    //     .json({ success: false, error: "Admin cannot access student data" });
+    // }
     //this code for student password saved in token and decode the password
-    const student = await Student.findOne({ user: decode.userId })
+    const student = await Student.findOne({ user: userId })
 
     // If student is not found
     if (!student) {
