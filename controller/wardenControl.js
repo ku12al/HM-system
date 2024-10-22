@@ -51,8 +51,6 @@ const registerAdmin = async (req, res) => {
 
 
     const token = generateToken(user._id, user.isAdmin);
-
-    
     await admin.save();
     await user.save();
 
@@ -115,17 +113,19 @@ const registerAdmin = async (req, res) => {
 
 const getWardenData = async(req, res) => {
   try{
-    const { token }= req.body;
+    // const { token }= req.body;
 
-    const decode = verifyToken(token);
-    console.log(decode.isAdmin)
+    // const decode = verifyToken(token);
+    // console.log(decode.isAdmin)
 
-    if(!decode.isAdmin){
-      return res.status(200).json({success: false, message: "Admin can't access this route"})
-    }
+    // if(!decode.isAdmin){
+    //   return res.status(200).json({success: false, message: "Admin can't access this route"})
+    // }
 
+    const { userId } = req.body;
+    // console.log(userId);
     //this code for student password saved in token and decode the password
-    const warden = await Warden.findOne({ user: decode.userId })
+    const warden = await Warden.findOne({ user: userId })
 
     // If student is not found
     if (!warden) {
@@ -135,15 +135,8 @@ const getWardenData = async(req, res) => {
     // Send the warden data including the QR code
     res.json({
       success: true,
-      warden: {
-        ...warden._doc, // Spread warden data
-      },
+      warden
     });
-
-
-
-
-
   }catch(err){
     console.log(err);
     return res.status(500).send("server error");

@@ -1,6 +1,6 @@
 const express = require('express');
 const { check } = require('express-validator');
-const { hostelRegister, getAllStudent } = require('../controller/hostelController');
+const { hostelRegister, getAllStudentByHostel } = require('../controller/hostelController');
 const router = express.Router();
 
 router.post("/hostelregister",[
@@ -9,8 +9,6 @@ router.post("/hostelregister",[
 ], hostelRegister)
 
 
-router.post("/get-all-student",[
-      check('hostel', 'Hostel is required').not().isEmpty()
-], getAllStudent)
+router.get("/get-all-student", getAllStudentByHostel)
 
 module.exports = router

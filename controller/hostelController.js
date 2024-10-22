@@ -1,5 +1,6 @@
 const { validationResult } = require("express-validator");
 const Hostel = require("../models/Hostel");
+const Student = require("../models/Student");
 
 
 const hostelRegister = async (req, res) =>{
@@ -31,7 +32,7 @@ const hostelRegister = async (req, res) =>{
 
 
 //get all student in particular hostel
-const getAllStudent = async (req, res) => {
+const getAllStudentByHostel = async (req, res) => {
       let success = false;
       const errors = validationResult(req);
     
@@ -40,11 +41,11 @@ const getAllStudent = async (req, res) => {
         return res.status(400).json({ success, errors: errors.array() });
       }
     
-      const { hostel } = req.body;
+      const { hostelId } = req.body;
     
       try {
         // Find hostel
-        const shostel = await Hostel.findOne({hostelname: hostel});
+        const shostel = await Hostel.findOne({_id: hostelId});
     
         
         // If hostel doesn't exist
@@ -56,7 +57,7 @@ const getAllStudent = async (req, res) => {
         const students = await Student.find({ hostel: shostel._id }).select("-password");
     
         success = true;
-        res.json({ success, students });
+        res.json({ success, shostel });
       } catch (err) {
         // Return 500 status on server error
         res.status(500).json({ success: false, errors: [{ message: "server error" }] });
@@ -65,5 +66,5 @@ const getAllStudent = async (req, res) => {
 
 module.exports ={
       hostelRegister,
-      getAllStudent
+      getAllStudentByHostel
 }
