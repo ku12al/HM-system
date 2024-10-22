@@ -186,7 +186,7 @@ const getStudent = async (req, res) => {
 const getRoomDetails = async (req, res) => {
   try{
 
-    const { userId } = req.query;
+    const { userId } = req.body;
 
 
     const student = await Student.findOne({user : userId});
