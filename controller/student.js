@@ -144,7 +144,7 @@ const Qrcode = async (req, res) => {
 //get student data through student passwrod tokken
 const getStudent = async (req, res) => {
   try {
-    // const { userId } = req.body;
+    const { userId } = req.body;
 
     // const decode = verifyToken(token);
     // console.log(decode)
@@ -155,7 +155,7 @@ const getStudent = async (req, res) => {
     //     .status(403)
     //     .json({ success: false, error: "Admin cannot access student data" });
     // }
-    const student = await Student.findOne( req.student );
+    const student = await Student.findOne( { user: userId} );
     // If student is not found
     if (!student) {
       return res.status(404).json({ success: false, errors: "Student not found" });
@@ -181,13 +181,17 @@ const getRoomDetails = async (req, res) => {
 
     const student = await Student.findOne({user : userId});
 
-    // console.log(student);
+    console.log(student);
 
     if(!student){
       return res.status(500).json({success: false, error: "student not exists"})
     }
 
-    const roomDetails = await Room.findOne({_id : student.room})
+    const roomDetails = await Room.findOne({ _id: student.room })
+      .populate({
+        path: 'students.student', // Populate the 'student' field inside 'students' array
+        select: 'name' // Only select the 'name' field of the student
+      });
     
     if (!roomDetails) {
       return res.status(404).json({ success: false, error: "Room details not found" });
