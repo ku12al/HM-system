@@ -177,14 +177,15 @@ const getStudent = async (req, res) => {
 const getRoomDetails = async (req, res) => {
   try{
 
-    const { userId } = req.body;
+    const { userId } = req.query;
+
 
     const student = await Student.findOne({user : userId});
 
-    console.log(student);
+    // console.log(student);
 
     if(!student){
-      return res.status(500).json({success: false, error: "student not exists"})
+      return res.status(404).json({success: false, error: "student not exists"})
     }
 
     const roomDetails = await Room.findOne({ _id: student.room })

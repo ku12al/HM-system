@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const roomsSchema = new mongoose.Schema({
       hostel:{
             type: mongoose.Schema.Types.ObjectId,
-            ref:'hostel',
+            ref:'Hostel',
             require:true,
       },
       roomNumber:{
@@ -19,7 +19,7 @@ const roomsSchema = new mongoose.Schema({
             {
                   student:{
                         type:mongoose.Schema.Types.ObjectId,
-                        ref:'student'
+                        ref:'Student'
                   }
             }
       ]
