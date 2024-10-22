@@ -155,7 +155,16 @@ const getStudent = async (req, res) => {
     //     .status(403)
     //     .json({ success: false, error: "Admin cannot access student data" });
     // }
-    const student = await Student.findOne( { user: userId} );
+    const student = await Student.findOne({ user: userId })
+      .populate({
+        path: 'room', // Populate the room details
+        select: 'roomNumber' // Only select the room number field
+      })
+      .populate({
+        path: 'hostel', // Populate the hostel details
+        select: 'hostelname' // Only select the hostel name field
+      });
+
     // If student is not found
     if (!student) {
       return res.status(404).json({ success: false, errors: "Student not found" });
