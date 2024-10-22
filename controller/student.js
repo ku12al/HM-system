@@ -144,7 +144,7 @@ const Qrcode = async (req, res) => {
 //get student data through student passwrod tokken
 const getStudent = async (req, res) => {
   try {
-    const { userId } = req.query;
+    const { userId } = req.body;
 
     // const decode = verifyToken(token);
     // console.log(decode)
