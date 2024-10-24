@@ -3,26 +3,48 @@ const moment = require("moment");
 const Student = require("../models/Student");
 const Attendance = require("../models/Attendance");
 
+
+//mark student present
 const markPresent = async (req, res) => {
   const today = new Date();
+  
+  // Set the start of the day at 12:00 PM (midday)
   today.setHours(12, 0, 0, 0);
 
+  // End of the attendance day at 11:59:59 AM of the next day
   const endOfDay = new Date(today);
-  endOfDay.setHours(11, 59, 59, 999);
+  endOfDay.setDate(endOfDay.getDate() + 1); // Move to the next day
+  endOfDay.setHours(11, 59, 59, 999);  // Set to 11:59 AM of the next day
 
   try {
     // Verify the QR code and get the student info
     const { erpid } = req.body;
-    const student = await Student.findById(erpid);
+    const student = await Student.findOne({ erpid });  // Use findOne for erpid
     if (!student) {
       return res
         .status(404)
         .json({ success: false, message: "Student not found" });
     }
 
+    // Check if the student already has attendance marked for today (from 12 PM to 12 PM)
+    const existingAttendance = await Attendance.findOne({
+      student: student._id,
+      date: {
+        $gte: today,
+        $lte: endOfDay
+      }
+    });
+
+    if (existingAttendance) {
+      return res.status(400).json({
+        success: false,
+        message: "Attendance already marked for this period",
+      });
+    }
+
     // Mark attendance as present
     const attendance = new Attendance({
-      student: erpid,
+      student: student._id,  // Use student's ID reference here
       status: "Present",
       date: new Date(),
     });
@@ -37,6 +59,8 @@ const markPresent = async (req, res) => {
   }
 };
 
+
+//mark student absent
 const markAbsent = async () => {
   try {
     const today = new Date();
@@ -70,14 +94,88 @@ const markAbsent = async () => {
 
 
 
-// API to check attendance status for all students
+//this code for check all student attendence
+
 const checkAttendance = async (req, res) => {
   try {
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    
+    // Set start of the attendance day at 12:00 PM (midday)
+    today.setHours(12, 0, 0, 0);
 
-    const attendanceRecords = await Attendance.find({ date: today }).populate('student');
-    res.status(200).json({ success: true, records: attendanceRecords });
+    // End of the attendance day at 11:59:59 AM of the next day
+    const endOfDay = new Date(today);
+    endOfDay.setDate(endOfDay.getDate() + 1);  // Move to the next day
+    endOfDay.setHours(11, 59, 59, 999);  // Set to 11:59 AM of the next day
+
+    // Fetch all students
+    const allStudents = await Student.find({});
+
+    // Fetch attendance records for the custom date range
+    const attendanceRecords = await Attendance.find({
+      date: {
+        $gte: today,
+        $lte: endOfDay,
+      }
+    });
+
+    // Map attendance status for each student
+    const studentAttendance = allStudents.map(student => {
+      const attendance = attendanceRecords.find(record => 
+        record.student.toString() === student._id.toString()
+      );
+      
+      return {
+        student: student,  // Student details
+        status: attendance ? attendance.status : "Absent",  // Attendance status
+        date: attendance ? attendance.date : null  // Attendance date if present
+      };
+    });
+
+    res.status(200).json({ success: true, records: studentAttendance });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+
+
+const checkAttendanceAtDate = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    // Parse the date range provided
+    const start = new Date(startDate); // startDate in format 'YYYY-MM-DD'
+    start.setHours(12, 0, 0, 0);  // Set start of day at 12:00 PM
+
+    const end = new Date(endDate);  // endDate in format 'YYYY-MM-DD'
+    end.setDate(end.getDate() + 1);  // End of day to next day at 11:59 AM
+    end.setHours(11, 59, 59, 999);
+
+    // Fetch all students
+    const allStudents = await Student.find({});
+
+    // Fetch attendance records within the date range
+    const attendanceRecords = await Attendance.find({
+      date: {
+        $gte: start,
+        $lte: end,
+      },
+    });
+
+    // Map attendance status for each student in the specified range
+    const studentAttendance = allStudents.map(student => {
+      const attendanceRecord = attendanceRecords.find(record => record.student.toString() === student._id.toString());
+
+      return {
+        student: student,  // Student details
+        status: attendanceRecord ? attendanceRecord.status : "Absent",  // Status if present, else 'Absent'
+        date: attendanceRecord ? attendanceRecord.date : null,  // Attendance date if present
+      };
+    });
+
+    res.status(200).json({ success: true, records: studentAttendance });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Server error" });
@@ -116,4 +214,5 @@ module.exports = {
   markPresent,
   markAbsent,
   checkAttendance,
+  checkAttendanceAtDate,
 };

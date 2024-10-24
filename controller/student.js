@@ -6,8 +6,8 @@ const Student = require("../models/Student");
 const Hostel = require("../models/Hostel");
 const Room = require("../models/Rooms");
 const User = require("../models/User");
-const QRCode = require('qrcode')
-
+const QRCode = require("qrcode");
+const { default: mongoose } = require("mongoose");
 
 //new registration for student ------
 const registerStudent = async (req, res) => {
@@ -28,11 +28,15 @@ const registerStudent = async (req, res) => {
     roomNumber,
   } = req.body;
 
+  const session = await mongoose.startSession(); // Start session for transaction
+  session.startTransaction();
   try {
     // Check if the student already exists
     const existingStudent = await Student.findOne({ erpid });
     if (existingStudent) {
-      return res.status(400).json({ error: [{ message: "Student already exists" }] });
+      return res
+        .status(400)
+        .json({ error: [{ message: "Student already exists" }] });
     }
 
     // Hash the password
@@ -53,16 +57,29 @@ const registerStudent = async (req, res) => {
     }
 
     // Find the room, or create a new one if it doesn't exist
-    let room = await Room.findOne({ roomNumber });
-    if (!room) {
-      room = new Room({
-        roomNumber,
-        capacity: 4,
-        students: [],
-        hostel: hostel._id,
-      });
-      await room.save();
-    }
+    // let room = await Room.findOne({ roomNumber });
+    // if (!room) {
+    //   room = new Room({
+    //     roomNumber,
+    //     capacity: 4,
+    //     students: [],
+    //     hostel: hostel._id,
+    //   });
+    //   await room.save();
+    // }
+
+    let room = await Room.findOneAndUpdate(
+      { roomNumber, hostel: hostel._id },
+      {
+        $setOnInsert: {
+          roomNumber,
+          hostel: hostel._id,
+          capacity: 4,
+          students: [],
+        },
+      },
+      { new: true, upsert: true, session }
+    );
 
     // Check room capacity
     if (room.students.length >= room.capacity) {
@@ -77,7 +94,6 @@ const registerStudent = async (req, res) => {
 
       // Base64 encoding to send as image
       qrImageData = qrImage.replace(/^data:image\/png;base64,/, "");
-
     } catch (qrError) {
       return res.status(500).json({ error: "Failed to generate QR code" });
     }
@@ -105,40 +121,44 @@ const registerStudent = async (req, res) => {
     await user.save();
     await student.save();
     room.students.push({ student: student._id });
-    await room.save();
+    await room.save({ session });
 
+    // Commit the transaction
+    await session.commitTransaction();
+    session.endSession();
+    // res.json({ message: "Student created successfully" });
     // Set the response header to indicate that this is an image
     res.setHeader("Content-Type", "image/png");
 
     // Send the image as a Buffer
     res.send(Buffer.from(qrImageData, "base64"));
-
   } catch (err) {
+    await session.abortTransaction(); // Rollback on error
+    session.endSession();
     console.error(err);
     res.status(500).json({ error: "Server error" });
   }
 };
 
 
-
 //qr for student registration
 const Qrcode = async (req, res) => {
-  try{
+  try {
     const text = req.query.text;
-    if(!text){
-      return res.status(400).json({error: "Please provide a text to generate a QR"})
+    if (!text) {
+      return res
+        .status(400)
+        .json({ error: "Please provide a text to generate a QR" });
     }
 
     const qrImage = await QRCode.toDataURL(text);
     const qrImageData = qrImage.replace(/^data:image\/png;base64,/, "");
     res.setHeader("Content-Type", "image/png");
     res.send(Buffer.from(qrImageData, "base64"));
-
-  }catch(err){
+  } catch (err) {
     console.error(err);
   }
-}
-
+};
 
 
 //get student data through student passwrod tokken
@@ -157,23 +177,25 @@ const getStudent = async (req, res) => {
     // }
     const student = await Student.findOne({ user: userId })
       .populate({
-        path: 'room', // Populate the room details
-        select: 'roomNumber' // Only select the room number field
+        path: "room", // Populate the room details
+        select: "roomNumber", // Only select the room number field
       })
       .populate({
-        path: 'hostel', // Populate the hostel details
-        select: 'hostelname' // Only select the hostel name field
+        path: "hostel", // Populate the hostel details
+        select: "hostelname", // Only select the hostel name field
       });
 
     // If student is not found
     if (!student) {
-      return res.status(404).json({ success: false, errors: "Student not found" });
+      return res
+        .status(404)
+        .json({ success: false, errors: "Student not found" });
     }
 
     // Send the student data including the QR code
     res.json({
       success: true,
-      student
+      student,
     });
   } catch (err) {
     console.log(err);
@@ -183,37 +205,41 @@ const getStudent = async (req, res) => {
 
 
 
+//get room details of the student
 const getRoomDetails = async (req, res) => {
-  try{
-
+  try {
     const { userId } = req.body;
 
-
-    const student = await Student.findOne({user : userId});
+    const student = await Student.findOne({ user: userId });
 
     // console.log(student);
 
-    if(!student){
-      return res.status(404).json({success: false, error: "student not exists"})
+    if (!student) {
+      return res
+        .status(404)
+        .json({ success: false, error: "student not exists" });
     }
 
-    const roomDetails = await Room.findOne({ _id: student.room })
-      .populate({
-        path: 'students.student', // Populate the 'student' field inside 'students' array
-        select: 'name' // Only select the 'name' field of the student
-      });
-    
+    const roomDetails = await Room.findOne({ _id: student.room }).populate({
+      path: "students.student", // Populate the 'student' field inside 'students' array
+      select: "name", // Only select the 'name' field of the student
+    });
+
     if (!roomDetails) {
-      return res.status(404).json({ success: false, error: "Room details not found" });
+      return res
+        .status(404)
+        .json({ success: false, error: "Room details not found" });
     }
 
     // Return the room details
-    res.status(200).json({ success: true, roomDetails});
-  }catch(error){
+    res.status(200).json({ success: true, roomDetails });
+  } catch (error) {
     console.error(error);
-    return res.status(500).json({success: false, errors: "server error"});
+    return res.status(500).json({ success: false, errors: "server error" });
   }
-}
+};
+
+
 
 
 
@@ -225,7 +251,9 @@ const updatesStudent = async (req, res) => {
 
     // Check if student exists
     if (!student) {
-      return res.status(404).json({ success: false, errors: [{ message: "Student not found" }] });
+      return res
+        .status(404)
+        .json({ success: false, errors: [{ message: "Student not found" }] });
     }
 
     const {
@@ -263,9 +291,14 @@ const updatesStudent = async (req, res) => {
     res.json({ success, student });
   } catch (err) {
     console.log(err.message);
-    res.status(500).json({ success: false, errors: [{ message: "server error" }] });
+    res
+      .status(500)
+      .json({ success: false, errors: [{ message: "server error" }] });
   }
 };
+
+
+
 
 
 
@@ -273,6 +306,10 @@ const updatesStudent = async (req, res) => {
 //delete student data ---------
 const deleteStudent = async (req, res) => {
   let success = false;
+  // Start transaction
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
     const error = validationResult(req);
 
@@ -281,42 +318,63 @@ const deleteStudent = async (req, res) => {
     }
 
     const { id } = req.body;
+    // Validate that the ID is provided
+    if (!id) {
+      return res
+        .status(400)
+        .json({ success, error: [{ message: "Student ID is required" }] });
+    }
 
     // Find the student by id
-    const student = await Student.findById(id);
+    const student = await Student.findById(id).session(session);
     if (!student) {
-      return res.status(400).json({ success, error: { message: "Student does not exist" } });
+      return res
+        .status(404)
+        .json({ success, error: { message: "Student does not exist" } });
     }
 
     // Find and delete the associated user
-    const user = await User.findByIdAndDelete(student.user);
+    const user = await User.findByIdAndDelete(student.user).session(session);
     if (!user) {
-      return res.status(400).json({ success, error: { message: "Associated user not found" } });
+      return res
+        .status(404)
+        .json({ success, error: { message: "Associated user not found" } });
     }
 
     // Find the room associated with the student
-    const room = await Room.findById(student.room);
+    const room = await Room.findById(student.room).session(session);
     if (!room) {
-      return res.status(400).json({ success, error: { message: "Room not found" } });
+      return res
+        .status(404)
+        .json({ success, error: { message: "Room not found" } });
     }
 
-    // Remove the student from the room's list of students
-    room.students = room.students.filter(studentId => studentId.toString() !== id.toString());
-
+    // Remove the student from the room's list of students (access the 'student' key inside each object)
+    room.students = room.students.filter(
+      (studentObj) => studentObj.student.toString() !== id.toString()
+    );
     // Increase the room capacity (optional: depends on how you manage room capacity)
-    room.capacity += 1;
+    // room.capacity += 1;
 
-    // Save the updated room
-    await room.save();
+    // Save the updated room document
+    await room.save({ session });
 
     // Delete the student
-    await Student.findByIdAndDelete(id);
+    await Student.findByIdAndDelete(id).session(session);
+
+    // Commit the transaction
+    await session.commitTransaction();
+    session.endSession();
 
     success = true;
     res.json({ success, message: "Student deleted successfully" });
   } catch (errors) {
+    await session.abortTransaction();
+    session.endSession();
     console.error(errors); // Log full error object to capture any possible issues
-    return res.status(500).json({ success: false, errors: [{ message: "Server error" }] });
+    return res
+      .status(500)
+      .json({ success: false, errors: [{ message: "Server error" }] });
   }
 };
 
@@ -326,5 +384,5 @@ module.exports = {
   getRoomDetails,
   updatesStudent,
   deleteStudent,
-  Qrcode
+  Qrcode,
 };

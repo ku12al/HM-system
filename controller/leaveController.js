@@ -28,11 +28,11 @@ const leaveRequest = async (req, res) => {
     }
     const hostel = await Hostel.findOne({ hostelname: hostelname });
     if (!hostel) {
-      return res.status(400).json({ error: "Hostel not found" });
+      return res.status(404).json({ error: "Hostel not found" });
     }
     let room = await Room.findOne({ roomNumber });
     if (!room) {
-      return res.status(400).json({ error: "Room not found" });
+      return res.status(404).json({ error: "Room not found" });
     }
 
     const newLeave = new Leave({
@@ -55,13 +55,15 @@ const leaveRequest = async (req, res) => {
     await studentRecord.save();
     success = true;
     res
-      .status(400)
+      .status(201)
       .json({ success, msg: "leave application submitted successfull" });
   } catch (err) {
     console.log(err);
     res.status(500).send("server error");
   }
 };
+
+
 
 const approveLeave = async (req, res) => {
   const { leaveId } = req.body;
