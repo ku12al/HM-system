@@ -223,7 +223,11 @@ const getRoomDetails = async (req, res) => {
     const roomDetails = await Room.findOne({ _id: student.room }).populate({
       path: "students.student", // Populate the 'student' field inside 'students' array
       select: "name", // Only select the 'name' field of the student
+    }).populate({
+      path: "hostel", // Populate the hostel details
+      select: "hostelname", // Only select the hostel name field
     });
+
 
     if (!roomDetails) {
       return res
