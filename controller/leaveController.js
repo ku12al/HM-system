@@ -4,6 +4,7 @@ const QRCode = require('qrcode');
 const Room = require("../models/Rooms");
 const Hostel = require("../models/Hostel");
 const Attendance = require("../models/Attendance");
+const User = require("../models/User");
 
 const leaveRequest = async (req, res) => {
   success = false;
