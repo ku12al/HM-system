@@ -1,6 +1,6 @@
 const express = require('express');
 const { check } = require('express-validator');
-const { registerComplaint, getComplaint, resolveComplaint, getByStudent } = require('../controller/complaintContoller');
+const { registerComplaint, getComplaint, updateComplaint, getByStudent } = require('../controller/complaintContoller');
 const router = express.Router();
 
 
@@ -12,7 +12,7 @@ router.post("/registercomplaint", [
       check('description', "description is required ").not().isEmpty(),
 ], registerComplaint);
 
-router.post("/getcomplaint",  getComplaint)
+router.get("/getcomplaint",  getComplaint)
 
 
 router.post("/getbystudent", [
@@ -21,7 +21,7 @@ router.post("/getbystudent", [
 
 router.post("/resolve", [
       check('id', "complaint id is required").not().isEmpty()
-], resolveComplaint)
+], updateComplaint)
 
 
 module.exports = router

@@ -33,10 +33,12 @@ const registerComplaint = async (req, res) =>{
 
 const getComplaint = async (req, res) => {
       try {
-            // Fetch complaints and populate with student details
+            console.log("inoiwe")
             const complaints = await Complaint.find()
-                  .populate('student', 'erpid hostel room_no name') // Populate specific fields from Student model
-                  .sort({ createdAt: -1 }); // Optional: Sort by latest complaints
+                  .populate('student', 'erpid hostel room_no name')
+                  .sort({ date: -1 });
+            console.log("inoiwe")
+
 
             res.json({ success: true, complaints });
       } catch (err) {
@@ -61,24 +63,24 @@ const getByStudent = async (req, res) => {
 }
 
 
-const resolveComplaint = async (req, res) => {
-      let success = false;
-      const errors = validationResult(req);
-      if(!errors.isEmpty()){
-            return res.status(500).json({errors: errors.array(), success});
-      }
+const updateComplaint = async (req, res) => {
+      try {
+            const { complaintId, status, notSolvedReason } = req.body;
+            const complaint = await Complaint.findById(complaintId);
+            if (!complaint) {
+                  return res.status(404).json({ success: false, msg: 'Complaint not found' });
+            }
 
-      const {id} = req.body;
-      try{
-            const complaint  = await Complaint.findById(id);
-            complaint.status = "solved";
+            complaint.status = status;
+            if (status === 'decline') {
+                  complaint.notSolvedReason = notSolvedReason;
+            }
+
             await complaint.save();
-            success = true;
-            res.status(200).send({success});
-
-      }catch(error){
-            console.log(error.message);
-            res.status(500).send("sever error");
+            res.json({ success: true, msg: 'Complaint status updated successfully' });
+      } catch (err) {
+            console.error(err.message);
+            res.status(500).send("Server error");
       }
 }
 
@@ -87,5 +89,5 @@ module.exports = {
       registerComplaint,
       getComplaint,
       getByStudent,
-      resolveComplaint
+      updateComplaint
 }
