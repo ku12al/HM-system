@@ -12,7 +12,7 @@ router.post("/registercomplaint", [
       check('description', "description is required ").not().isEmpty(),
 ], registerComplaint);
 
-router.post("/getcomplaint",  getComplaint)
+router.get("/getcomplaint",  getComplaint)
 
 
 router.post("/getbystudent", [
