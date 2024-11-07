@@ -1,17 +1,25 @@
 const { validationResult } = require("express-validator");
 const Complaint = require("../models/Complaint");
-
+const Student = require("../models/Student");
 
 const registerComplaint = async (req, res) =>{
       try{
-            const {student, hostel, room_no, type, description} = req.body;
+            const { erpid, type, description } = req.body;
+             // Fetch the student's details from the database
+            const student = await Student.findOne({ erpid }); // Assuming 'Student' is your student model
+
+            if (!student) {
+                  return res.status(404).json({ success: false, msg: 'Student not found' });
+            }
+ 
+             // Create a new complaint with the student’s details
             const newComplaint = new Complaint({
-                  student:student.erpid,
-                  hostel :hostel.hostelname,
-                  room_no:room_no.roomNumber,
+                  student: student._id, // Using the student ID for reference
+                  hostel: student.hostel, // Assuming 'hostel' is a field in the student document
+                  room_no: student.room_no, // Assuming 'room_no' is a field in the student document
                   type,
                   description
-            })
+            });
             await newComplaint.save();
             success = true
             res.json({success, msg: 'complaint registered successfully'});
@@ -23,18 +31,20 @@ const registerComplaint = async (req, res) =>{
 }
 
 
-const getByHostel = async (req, res) =>{
-      const {hostel}= req.body;
+const getComplaint = async (req, res) => {
+      try {
+            // Fetch complaints and populate with student details
+            const complaints = await Complaint.find()
+                  .populate('student', 'erpid hostel room_no name') // Populate specific fields from Student model
+                  .sort({ createdAt: -1 }); // Optional: Sort by latest complaints
 
-      try{
-            const complaint = await Complaint.find({hostel}).populate('student', ["name", "room"]);
-            success = true
-            res.status(200).json({success, complaint})
-      }catch(err){
-            console.log(err.message);
-            res.status(500).send("server error")
+            res.json({ success: true, complaints });
+      } catch (err) {
+            console.error(err.message);
+            res.status(500).send("Server error");
       }
-}
+};
+
 
 
 const getByStudent = async (req, res) => {
@@ -75,7 +85,7 @@ const resolveComplaint = async (req, res) => {
 
 module.exports = {
       registerComplaint,
-      getByHostel,
+      getComplaint,
       getByStudent,
       resolveComplaint
 }
