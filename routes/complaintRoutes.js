@@ -1,16 +1,11 @@
 const express = require('express');
 const { check } = require('express-validator');
 const { registerComplaint, getComplaint, updateComplaint, getByStudent } = require('../controller/complaintContoller');
+const { verifySession } = require('../utils/auth');
 const router = express.Router();
 
 
-router.post("/registercomplaint", [
-      check('student', "student is required ").not().isEmpty(),
-      check('hostel', "hostel is required ").not().isEmpty(),
-      check('type', "type is required ").not().isEmpty(),
-      check('title', "title is required ").not().isEmpty(),
-      check('description', "description is required ").not().isEmpty(),
-], registerComplaint);
+router.post("/registercomplaint",verifySession, registerComplaint);
 
 router.get("/getcomplaint",  getComplaint)
 

@@ -26,8 +26,10 @@ const login = async(req, res) => {
         .json({success:false, error: [{ message: "user not valid" }] });
     }
 
-    const token = generateToken(user._id, user.isAdmin);
+    // const token = generateToken(user._id, user.isAdmin);
+    req.session.userId = user._id;  // Store user ID in session
 
+    console.log(req.session.userId)
     res.status(200).json({
       success: true,
       // data: {
