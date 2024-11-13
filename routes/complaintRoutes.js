@@ -5,7 +5,7 @@ const { verifySession } = require('../utils/auth');
 const router = express.Router();
 
 
-router.post("/registercomplaint",verifySession, registerComplaint);
+router.post("/registercomplaint", registerComplaint);
 
 router.get("/getcomplaint",  getComplaint)
 

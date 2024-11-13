@@ -5,9 +5,9 @@ const User = require("../models/User");
 
 const registerComplaint = async (req, res) => {
   try {
-    const { type, description } = req.body;
+    const { type, description} = req.body;
 
-    const student = await Student.findOne({ user: req.session.userId });
+    const student = await Student.findOne({ user: req.body.userId });
 
     if (!student) {
       return res.status(404).json({ success: false, msg: "Student not found" });
