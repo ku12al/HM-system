@@ -10,7 +10,7 @@ const complaintSchema = new Schema({
             type: Schema.Types.ObjectId,
             ref: 'Hostel'
       },
-      room_no: {
+      room: {
             type: Schema.Types.ObjectId,
             ref: 'Room'
       },

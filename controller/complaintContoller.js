@@ -33,9 +33,12 @@ const registerComplaint = async (req, res) => {
 const getComplaint = async (req, res) => {
   try {
     const complaints = await Complaint.find()
-      .populate("student", "erpid hostel room_no name")
+      .populate({
+        path: "student",
+        select: "erpid hostel room name", 
+        populate: { path: "room", select: "roomNumber" } // Populate room details within student
+      })
       .populate("hostel", "hostelname") // Populate hostel details
-      .populate("room", "roomNumber") // Populate room details
       .sort({ date: -1 });
 
     res.json({ success: true, complaints });
