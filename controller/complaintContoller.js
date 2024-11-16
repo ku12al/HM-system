@@ -1,4 +1,3 @@
-const { validationResult } = require("express-validator");
 const Complaint = require("../models/Complaint");
 const Student = require("../models/Student");
 const User = require("../models/User");
@@ -60,7 +59,59 @@ const getByStudent = async (req, res) => {
   }
 };
 
-const updateComplaint = async (req, res) => {
+
+
+
+// Function to simulate sending a notification to the student
+const sendNotification = async (studentId, message) => {
+  try {
+    const student = await Student.findById(studentId);
+    if (student) {
+      // Send notification to the student (could be email, SMS, or in-app)
+      console.log("finowe");
+      console.log(`Notification to ${student.name}: ${message}`);
+      // You can integrate an email/SMS service here, like Nodemailer for email
+    }
+  } catch (err) {
+    console.error("Error sending notification:", err);
+  }
+};
+
+
+const solvedComplaints = async (req, res) => {
+  try {
+    console.log("Request params:", req.params);
+
+    const complaintId = req.params.id;
+    console.log("Complaint ID:", complaintId);
+
+    // Check if complaint ID is undefined
+    if (!complaintId) {
+      return res.status(400).json({ msg: "Complaint ID is missing" });
+    }
+
+    const complaint = await Complaint.findById(complaintId);
+
+    if (!complaint) {
+      return res.status(404).json({ msg: "Complaint not found" });
+    }
+
+    console.log("Updating complaint to 'solved' status...");
+    complaint.status = 'Solved';
+    await complaint.save();
+
+    console.log("Complaint updated successfully");
+
+    res.json({ success: true, msg: "Complaint marked as solved and notification sent." });
+  } catch (err) {
+    console.error("Error in solvedComplaints:", err.message);
+    res.status(500).send("Server error");
+  }
+};
+
+
+
+const unsolvedComplaint = async (req, res) => {
   try {
     const { complaintId, status, notSolvedReason } = req.body;
     const complaint = await Complaint.findById(complaintId);
@@ -87,5 +138,6 @@ module.exports = {
   registerComplaint,
   getComplaint,
   getByStudent,
-  updateComplaint,
+  solvedComplaints,
+  unsolvedComplaint,
 };

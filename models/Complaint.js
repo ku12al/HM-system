@@ -24,8 +24,8 @@ const complaintSchema = new Schema({
       },
       status: {
             type: String,
-            enum: ['pending', 'approved', 'decline'], // Enum should be an array
-            default: 'pending'
+            enum: ['Pending', 'Solved', 'Unsolved'], // Enum should be an array
+            default: 'Pending'
       },
       resolvedMessage: String,    // Message if the complaint is solved
       notSolvedReason: String,  
