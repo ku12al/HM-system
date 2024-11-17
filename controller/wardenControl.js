@@ -17,7 +17,7 @@ const registerAdmin = async (req, res) => {
   const { name, erpid, email, contact, address, password, hostel } = req.body;
 
   try {
-    let admin = await Warden.findOne({ erpid });
+    let admin = await Warden.findOne({ erpid: erpid });
 
     if (admin) {
       return res
@@ -41,7 +41,7 @@ const registerAdmin = async (req, res) => {
 
     
 
-    admin = new Warden({
+    const neadmin = new Warden({
       name,
       erpid,
       email,
@@ -50,9 +50,9 @@ const registerAdmin = async (req, res) => {
       user: user._id, // Use user ID after saving
       hostel: shostel._id,
     });
-
+    await neadmin.save(); // Save admin after user
     await user.save(); // Save user first
-    await admin.save(); // Save admin after user
+
     // const token = generateToken(user._id, user.isAdmin); // Ensure token generation is uncommented
 
     success = true;
@@ -114,19 +114,10 @@ const registerAdmin = async (req, res) => {
 
 const getWardenData = async(req, res) => {
   try{
-    // const { token }= req.body;
 
-    // const decode = verifyToken(token);
-    // console.log(decode.isAdmin)
-
-    // if(!decode.isAdmin){
-    //   return res.status(200).json({success: false, message: "Admin can't access this route"})
-    // }
-
-    const { userId } = req.body;
-    // console.log(userId);
-    //this code for student password saved in token and decode the password
+    const userId = req.params.id;
     const warden = await Warden.findOne({ user: userId })
+    console.log(warden)
 
     // If student is not found
     if (!warden) {
@@ -142,7 +133,6 @@ const getWardenData = async(req, res) => {
     console.log(err);
     return res.status(500).send("server error");
   }
-
 }
 
 
