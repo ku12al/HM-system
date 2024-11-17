@@ -39,7 +39,7 @@ const registerAdmin = async (req, res) => {
       isAdmin: true,
     });
 
-    await user.save(); // Save user first
+    
 
     admin = new Warden({
       name,
@@ -51,12 +51,12 @@ const registerAdmin = async (req, res) => {
       hostel: shostel._id,
     });
 
+    await user.save(); // Save user first
     await admin.save(); // Save admin after user
-
-    const token = generateToken(user._id, user.isAdmin); // Ensure token generation is uncommented
+    // const token = generateToken(user._id, user.isAdmin); // Ensure token generation is uncommented
 
     success = true;
-    res.status(200).json({ success, token, admin });
+    res.status(200).json({ success, admin });
   } catch (error) {
     console.log(error.message);
     res.status(500).send("Server error");
