@@ -117,7 +117,10 @@ const getWardenData = async(req, res) => {
 
     const userId = req.params.id;
     const warden = await Warden.findOne({ user: userId })
-    console.log(warden)
+    .populate({
+      path: "hostel", // Populate the hostel details
+      select: "hostelname", // Only select the hostel name field
+    });
 
     // If student is not found
     if (!warden) {

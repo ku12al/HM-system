@@ -25,11 +25,11 @@ const wardenSchema = new Schema({
     },
     user: {
         type: Schema.Types.ObjectId,
-        ref: 'user'
+        ref: 'User'
     },
     hostel: {
         type: Schema.Types.ObjectId,
-        ref: 'hostle',
+        ref: 'Hostel',
         required: true
     },
     role: {
