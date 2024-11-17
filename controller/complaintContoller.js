@@ -113,7 +113,9 @@ const solvedComplaints = async (req, res) => {
 
 const unsolvedComplaint = async (req, res) => {
   try {
-    const { complaintId, status, notSolvedReason } = req.body;
+    console.log("Request params:", req.params);
+    const complaintId = req.params.id;
+    const {status, notSolvedReason } = req.body;
     const complaint = await Complaint.findById(complaintId);
     if (!complaint) {
       return res
@@ -122,7 +124,7 @@ const unsolvedComplaint = async (req, res) => {
     }
 
     complaint.status = status;
-    if (status === "decline") {
+    if (status === 'Unsolved') {
       complaint.notSolvedReason = notSolvedReason;
     }
 

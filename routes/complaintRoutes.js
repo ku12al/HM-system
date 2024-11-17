@@ -12,9 +12,9 @@ router.get("/getcomplaint",  getComplaint)
 
 router.post("/getbystudent", getByStudent)
 
-router.post("/unresolved", unsolvedComplaint)
+router.post("/unresolved/:id", unsolvedComplaint)
 
-router.put("/resolved", solvedComplaints)
+router.put("/resolved/:id", solvedComplaints)
 
 
 module.exports = router
