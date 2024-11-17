@@ -4,12 +4,14 @@ const Hostel = require("../models/Hostel");
 const User = require("../models/User");
 const { generateToken, verifyToken } = require("../utils/auth");
 const Warden = require("../models/Warden")
+
+
 // admin registration
 const registerAdmin = async (req, res) => {
   let success = false;
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(500).json({ errros: errors.array(), success });
+    return res.status(500).json({ errors: errors.array(), success });
   }
 
   const { name, erpid, email, contact, address, password, hostel } = req.body;
@@ -20,15 +22,16 @@ const registerAdmin = async (req, res) => {
     if (admin) {
       return res
         .status(200)
-        .json({ success, error: [{ message: "Admin already exist" }] });
+        .json({ success, error: [{ message: "Admin already exists" }] });
     }
 
     let shostel = await Hostel.findOne({ hostelname: hostel });
+    if (!shostel) {
+      return res.status(404).json({ success, error: [{ message: "Hostel not found" }] });
+    }
 
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(password, salt);
-
-
 
     let user = new User({
       erpid,
@@ -36,8 +39,7 @@ const registerAdmin = async (req, res) => {
       isAdmin: true,
     });
 
-
-
+    await user.save(); // Save user first
 
     admin = new Warden({
       name,
@@ -45,20 +47,19 @@ const registerAdmin = async (req, res) => {
       email,
       contact,
       address,
-      user: user._id,
+      user: user._id, // Use user ID after saving
       hostel: shostel._id,
     });
 
+    await admin.save(); // Save admin after user
 
-    const token = generateToken(user._id, user.isAdmin);
-    await admin.save();
-    await user.save();
+    const token = generateToken(user._id, user.isAdmin); // Ensure token generation is uncommented
 
     success = true;
     res.status(200).json({ success, token, admin });
   } catch (error) {
     console.log(error.message);
-    res.status(500).send("sever error");
+    res.status(500).send("Server error");
   }
 };
 

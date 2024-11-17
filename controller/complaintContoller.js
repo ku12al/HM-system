@@ -136,10 +136,43 @@ const unsolvedComplaint = async (req, res) => {
   }
 };
 
+const complaintByStudent = async(req, res) =>{
+  try{
+    const studentId = req.params.id;
+
+    // Fetch complaints with nested population
+    const complaints = await Complaint.find({ student: studentId }).populate({
+      path: "student", // Correct field name for student reference in Complaint schema
+      select: "erpid name room", // Select specific fields from Student model
+      populate: {
+        path: "room", // Populate room field in the Student model
+        select: "roomNumber", // Select specific fields from Room model
+      },
+    });
+    // Check if no complaints were found
+    if (complaints.length === 0) {
+      return res.json({ success: true, msg: "You haven't registered any complaint" });
+    }
+
+    // Return complaints with populated fields
+    res.json({ success: true, complaints });
+  }catch(err){
+    return res.status(505).json({success: false, msg: "Server error"});
+  }
+}
+
+
+
+//satisfied 
+
+
+//Not satisfied
+
 module.exports = {
   registerComplaint,
   getComplaint,
   getByStudent,
   solvedComplaints,
   unsolvedComplaint,
+  complaintByStudent,
 };

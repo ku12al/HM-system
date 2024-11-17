@@ -8,7 +8,7 @@ const studentSchema = new Schema({
       erpid:{
             type: Number,
             required: true,
-            // unique:true
+            unique:true
       },
       gender:{
             type:String,
