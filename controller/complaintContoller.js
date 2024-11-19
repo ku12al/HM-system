@@ -29,16 +29,91 @@ const registerComplaint = async (req, res) => {
   }
 };
 
+// const getComplaint = async (req, res) => {
+//   try {
+//     const complaints = await Complaint.find()
+//       .populate({
+//         path: "student",
+//         select: "erpid hostel room name",
+//         populate: { path: "room", select: "roomNumber" }, // Populate room details within student
+//       })
+//       .populate("hostel", "hostelname") // Populate hostel details
+//       .sort({
+//         status: {
+//           $function: {
+//             body: function (status) {
+//               return status === "pending" ? 1 : status === "unsolved" ? 2 : 3;
+//             },
+//             args: ["$status"],
+//             lang: "js",
+//           },
+//         },
+//         date: -1, // Then sort by date in descending order
+//       });
+
+//     res.json({ success: true, complaints });
+//   } catch (err) {
+//     console.error(err.message);
+//     res.status(500).send("Server error");
+//   }
+// };
+
+
 const getComplaint = async (req, res) => {
   try {
-    const complaints = await Complaint.find()
-      .populate({
-        path: "student",
-        select: "erpid hostel room name", 
-        populate: { path: "room", select: "roomNumber" } // Populate room details within student
-      })
-      .populate("hostel", "hostelname") // Populate hostel details
-      .sort({ date: -1 });
+    const complaints = await Complaint.aggregate([
+      // Add a field for status priority
+      {
+        $addFields: {
+          statusPriority: {
+            $switch: {
+              branches: [
+                { case: { $eq: ["$status", "pending"] }, then: 1 },
+                { case: { $eq: ["$status", "unsolved"] }, then: 2 },
+                { case: { $eq: ["$status", "solved"] }, then: 3 },
+              ],
+              default: 4,
+            },
+          },
+        },
+      },
+      // Sort by status priority and date
+      { $sort: { statusPriority: 1, date: -1 } },
+      // Lookup student details
+      {
+        $lookup: {
+          from: "students", // The collection name for students
+          localField: "student",
+          foreignField: "_id",
+          as: "studentDetails",
+        },
+      },
+      // Unwind studentDetails array to a single object
+      { $unwind: "$studentDetails" },
+      // Lookup hostel details
+      {
+        $lookup: {
+          from: "hostels", // The collection name for hostels
+          localField: "hostel",
+          foreignField: "_id",
+          as: "hostelDetails",
+        },
+      },
+      // Unwind hostelDetails array to a single object
+      { $unwind: "$hostelDetails" },
+      // Project only required fields
+      {
+        $project: {
+          _id: 1,
+          type: 1,
+          description: 1,
+          status: 1,
+          date: 1,
+          "studentDetails.name": 1,
+          "hostelDetails.hostelname": 1,
+        },
+      },
+    ]);
 
     res.json({ success: true, complaints });
   } catch (err) {
@@ -46,6 +121,7 @@ const getComplaint = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
+
 
 const getByStudent = async (req, res) => {
   const { student } = req.body;
