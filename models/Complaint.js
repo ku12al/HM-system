@@ -11,7 +11,7 @@ const complaintSchema = new Schema(
     hostel: {
       type: Schema.Types.ObjectId,
       ref: "Hostel",
-      required: true, // Add required if all complaints must be tied to a hostel
+      required: true, // All complaints must be tied to a hostel
     },
     room: {
       type: Schema.Types.ObjectId,
@@ -42,6 +42,31 @@ const complaintSchema = new Schema(
       type: String,
       maxlength: 500, // Restrict the length of the not solved reason
     },
+    feedback: {
+      type: String,
+      maxlength: 500, // Optional feedback when marking "Not Satisfied"
+    },
+    notifiedToAdmin: {
+      type: Boolean,
+      default: false, // Whether admin is notified of dissatisfaction
+    },
+    statusHistory: [
+      {
+        status: {
+          type: String,
+          enum: ["Pending", "Solved", "Unsolved"],
+          required: true,
+        },
+        changedBy: {
+          type: Schema.Types.ObjectId,
+          ref: "Warden", // Reference to the admin or student
+        },
+        changedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
     date: {
       type: Date,
       default: Date.now, // Automatically set to the current date

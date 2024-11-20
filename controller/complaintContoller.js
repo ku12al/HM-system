@@ -59,6 +59,8 @@ const registerComplaint = async (req, res) => {
 // };
 
 
+
+//this is get all complaint for every pages
 const getComplaint = async (req, res) => {
   try {
     const complaints = await Complaint.aggregate([
@@ -123,44 +125,44 @@ const getComplaint = async (req, res) => {
 };
 
 
-const getByStudent = async (req, res) => {
-  const { student } = req.body;
-  try {
-    const complaints = await Complaint.find({ student });
-    success = true;
-    res.status(200).json({ success, complaints });
-  } catch (error) {
-    console.log(error.message);
-    res.status(500).send("sever error");
-  }
-};
+// //student get complaint in student page
+// const getByStudent = async (req, res) => {
+//   const { student } = req.body;
+//   try {
+//     const complaints = await Complaint.find({ student });
+//     success = true;
+//     res.status(200).json({ success, complaints });
+//   } catch (error) {
+//     console.log(error.message);
+//     res.status(500).send("sever error");
+//   }
+// };
 
 
 
 
-// Function to simulate sending a notification to the student
-const sendNotification = async (studentId, message) => {
-  try {
-    const student = await Student.findById(studentId);
-    if (student) {
-      // Send notification to the student (could be email, SMS, or in-app)
-      console.log("finowe");
-      console.log(`Notification to ${student.name}: ${message}`);
-      // You can integrate an email/SMS service here, like Nodemailer for email
-    }
-  } catch (err) {
-    console.error("Error sending notification:", err);
-  }
-};
+// // Function to simulate sending a notification to the student
+// const sendNotification = async (studentId, message) => {
+//   try {
+//     const student = await Student.findById(studentId);
+//     if (student) {
+//       // Send notification to the student (could be email, SMS, or in-app)
+//       console.log("finowe");
+//       console.log(`Notification to ${student.name}: ${message}`);
+//       // You can integrate an email/SMS service here, like Nodemailer for email
+//     }
+//   } catch (err) {
+//     console.error("Error sending notification:", err);
+//   }
+// };
 
-
+//warden press the button for solved the complaint
 const solvedComplaints = async (req, res) => {
   try {
     console.log("Request params:", req.params);
 
     const complaintId = req.params.id;
     console.log("Complaint ID:", complaintId);
-
     // Check if complaint ID is undefined
     if (!complaintId) {
       return res.status(400).json({ msg: "Complaint ID is missing" });
@@ -186,7 +188,7 @@ const solvedComplaints = async (req, res) => {
 };
 
 
-
+//warden press button to ignore the complaint
 const unsolvedComplaint = async (req, res) => {
   try {
     console.log("Request params:", req.params);
@@ -212,7 +214,9 @@ const unsolvedComplaint = async (req, res) => {
   }
 };
 
-const complaintByStudent = async(req, res) =>{
+
+//get own complaint student by id means student get complait own complaint in own app
+const getComplaintByStudent = async(req, res) =>{
   try{
     const studentId = req.params.id;
 
@@ -238,17 +242,70 @@ const complaintByStudent = async(req, res) =>{
 }
 
 
+//satisfied or not satisfied by student
+const updateComplaintStatus = async (req, res) => {
+  try {
+    const { id } = req.params; // Complaint ID
+    const { action, reason } = req.body; // Action: "satisfied" or "notSatisfied", reason for unsolved
 
-//satisfied 
+    // Validate action
+    if (!["satisfied", "notSatisfied"].includes(action)) {
+      return res.status(400).json({ success: false, msg: "Invalid action" });
+    }
+
+    const updateFields = {};
+    if (action === "satisfied") {
+      updateFields.status = "Solved";
+      updateFields.resolvedMessage = "Student marked as satisfied.";
+    } else if (action === "notSatisfied") {
+      if (!reason || reason.trim().length < 10) {
+        return res.status(400).json({
+          success: false,
+          msg: "Reason for dissatisfaction must be at least 10 characters long",
+        });
+      }
+      updateFields.status = "Unsolved";
+      updateFields.notSolvedReason = reason;
+    }
+
+    const updatedComplaint = await Complaint.findByIdAndUpdate(
+      id,
+      { $set: updateFields },
+      { new: true }
+    );
+
+    if (!updatedComplaint) {
+      return res.status(404).json({ success: false, msg: "Complaint not found" });
+    }
+
+    res.json({ success: true, msg: "Complaint updated successfully", updatedComplaint });
+  } catch (err) {
+    res.status(500).json({ success: false, msg: "Server error" });
+  }
+};
+
+
+// //satisfied 
+// const satisfiedByStudent = async (req, res) => {
+//   try{
+
+
+//   }catch(err){
+//     return res.status(500).json({success: false, msg: "Server error"});
+//   }
+// }
+
 
 
 //Not satisfied
 
+
 module.exports = {
   registerComplaint,
   getComplaint,
-  getByStudent,
+  // getByStudent,
   solvedComplaints,
   unsolvedComplaint,
-  complaintByStudent,
+  getComplaintByStudent,
+  updateComplaintStatus
 };
