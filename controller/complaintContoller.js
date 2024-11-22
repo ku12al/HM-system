@@ -22,7 +22,7 @@ const registerComplaint = async (req, res) => {
     });
     await newComplaint.save();
 
-    res.json({ success: true, msg: "Complaint registered successfully" });
+    res.json({ success: true, msg: "Complaint registered successfully", newComplaint});
   } catch (err) {
     console.log(err.message);
     res.status(500).send("sever error");
