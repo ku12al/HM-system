@@ -9,9 +9,6 @@ router.post("/registercomplaint", registerComplaint);
 
 router.get("/getcomplaint",  getComplaint)
 
-
-// router.post("/getbystudent", getByStudent)
-
 router.post("/unresolved/:id", unsolvedComplaint)
 
 router.put("/resolved/:id", solvedComplaints)

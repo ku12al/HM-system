@@ -1,6 +1,5 @@
 const Complaint = require("../models/Complaint");
 const Student = require("../models/Student");
-const User = require("../models/User");
 
 const registerComplaint = async (req, res) => {
   try {
@@ -28,6 +27,7 @@ const registerComplaint = async (req, res) => {
     res.status(500).send("sever error");
   }
 };
+
 
 
 //this is get all complaint for every pages
@@ -98,13 +98,13 @@ const getComplaint = async (req, res) => {
 //   }
 // };
 
+
+
 //warden press the button for solved the complaint
 const solvedComplaints = async (req, res) => {
   try {
-    console.log("Request params:", req.params);
 
-    const complaintId = req.params.id;
-    console.log("Complaint ID:", complaintId);
+    const complaintId = req.params.id; // complaint id 
     // Check if complaint ID is undefined
     if (!complaintId) {
       return res.status(400).json({ msg: "Complaint ID is missing" });
@@ -130,11 +130,11 @@ const solvedComplaints = async (req, res) => {
 };
 
 
+
 //warden press button to ignore the complaint
 const unsolvedComplaint = async (req, res) => {
   try {
-    console.log("Request params:", req.params);
-    const complaintId = req.params.id;
+    const complaintId = req.params.id; //complaint id
     const {status, notSolvedReason } = req.body;
     const complaint = await Complaint.findById(complaintId);
     if (!complaint) {
@@ -157,10 +157,11 @@ const unsolvedComplaint = async (req, res) => {
 };
 
 
+
 //get own complaint student by id means student get complait own complaint in own app
 const getComplaintByStudent = async(req, res) =>{
   try{
-    const studentId = req.params.id;
+    const studentId = req.params.id; //student id 
 
     // Fetch complaints with nested population
     const complaints = await Complaint.find({ student: studentId }).populate({
@@ -182,6 +183,7 @@ const getComplaintByStudent = async(req, res) =>{
     return res.status(505).json({success: false, msg: "Server error"});
   }
 }
+
 
 
 //satisfied or not satisfied by student
@@ -240,7 +242,6 @@ const sendNotificationToSuperAdmin = async (complaintId, reason) => {
 module.exports = {
   registerComplaint,
   getComplaint,
-  // getByStudent,
   solvedComplaints,
   unsolvedComplaint,
   getComplaintByStudent,
