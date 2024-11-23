@@ -29,42 +29,15 @@ const registerComplaint = async (req, res) => {
   }
 };
 
-// const getComplaint = async (req, res) => {
-//   try {
-//     const complaints = await Complaint.find()
-//       .populate({
-//         path: "student",
-//         select: "erpid hostel room name",
-//         populate: { path: "room", select: "roomNumber" }, // Populate room details within student
-//       })
-//       .populate("hostel", "hostelname") // Populate hostel details
-//       .sort({
-//         status: {
-//           $function: {
-//             body: function (status) {
-//               return status === "pending" ? 1 : status === "unsolved" ? 2 : 3;
-//             },
-//             args: ["$status"],
-//             lang: "js",
-//           },
-//         },
-//         date: -1, // Then sort by date in descending order
-//       });
-
-//     res.json({ success: true, complaints });
-//   } catch (err) {
-//     console.error(err.message);
-//     res.status(500).send("Server error");
-//   }
-// };
-
-
 
 //this is get all complaint for every pages
 const getComplaint = async (req, res) => {
   try {
+    const { status } = req.query; // Accept status as a query parameter
+    const filter = status ? { status: status } : {}; // Apply status filter if provided
+
     const complaints = await Complaint.aggregate([
-      // Add a field for status priority
+      { $match: filter }, // Match complaints by status
       {
         $addFields: {
           statusPriority: {
@@ -79,31 +52,16 @@ const getComplaint = async (req, res) => {
           },
         },
       },
-      // Sort by status priority and date
       { $sort: { statusPriority: 1, date: -1 } },
-      // Lookup student details
       {
         $lookup: {
-          from: "students", // The collection name for students
+          from: "students",
           localField: "student",
           foreignField: "_id",
           as: "studentDetails",
         },
       },
-      // Unwind studentDetails array to a single object
       { $unwind: "$studentDetails" },
-      // Lookup hostel details
-      {
-        $lookup: {
-          from: "hostels", // The collection name for hostels
-          localField: "hostel",
-          foreignField: "_id",
-          as: "hostelDetails",
-        },
-      },
-      // Unwind hostelDetails array to a single object
-      { $unwind: "$hostelDetails" },
-      // Project only required fields
       {
         $project: {
           _id: 1,
@@ -112,7 +70,7 @@ const getComplaint = async (req, res) => {
           status: 1,
           date: 1,
           "studentDetails.name": 1,
-          "hostelDetails.hostelname": 1,
+          "studentDetails.room_no": 1,
         },
       },
     ]);
@@ -123,22 +81,6 @@ const getComplaint = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
-
-
-// //student get complaint in student page
-// const getByStudent = async (req, res) => {
-//   const { student } = req.body;
-//   try {
-//     const complaints = await Complaint.find({ student });
-//     success = true;
-//     res.status(200).json({ success, complaints });
-//   } catch (error) {
-//     console.log(error.message);
-//     res.status(500).send("sever error");
-//   }
-// };
-
-
 
 
 // // Function to simulate sending a notification to the student
@@ -247,15 +189,12 @@ const updateComplaintStatus = async (req, res) => {
   try {
     const { id } = req.params; // Complaint ID
     const { action, reason } = req.body; // Action: "satisfied" or "notSatisfied", reason for unsolved
-
-    // Validate action
     if (!["satisfied", "notSatisfied"].includes(action)) {
       return res.status(400).json({ success: false, msg: "Invalid action" });
     }
-
     const updateFields = {};
     if (action === "satisfied") {
-      updateFields.status = "Solved";
+      updateFields.isVisibleToStudent = false; // Mark as invisible in interface
       updateFields.resolvedMessage = "Student marked as satisfied.";
     } else if (action === "notSatisfied") {
       if (!reason || reason.trim().length < 10) {
@@ -264,41 +203,39 @@ const updateComplaintStatus = async (req, res) => {
           msg: "Reason for dissatisfaction must be at least 10 characters long",
         });
       }
-      updateFields.status = "Unsolved";
       updateFields.notSolvedReason = reason;
+      // await sendNotificationToSuperAdmin(updatedComplaint._id, reason);
     }
-
     const updatedComplaint = await Complaint.findByIdAndUpdate(
       id,
       { $set: updateFields },
       { new: true }
     );
-
     if (!updatedComplaint) {
       return res.status(404).json({ success: false, msg: "Complaint not found" });
     }
 
+    if (action === "notSatisfied") {
+      // Notify super admin
+      await sendNotificationToSuperAdmin(updatedComplaint._id, reason);
+    }
+    
     res.json({ success: true, msg: "Complaint updated successfully", updatedComplaint });
   } catch (err) {
     res.status(500).json({ success: false, msg: "Server error" });
   }
 };
 
-
-// //satisfied 
-// const satisfiedByStudent = async (req, res) => {
-//   try{
-
-
-//   }catch(err){
-//     return res.status(500).json({success: false, msg: "Server error"});
-//   }
-// }
-
-
-
-//Not satisfied
-
+const sendNotificationToSuperAdmin = async (complaintId, reason) => {
+  try {
+    console.log(
+      `Notification to Super Admin: Complaint ${complaintId} marked as unsatisfied. Reason: ${reason}`
+    );
+    // Add integration with email/SMS service
+  } catch (err) {
+    console.error("Error notifying super admin:", err.message);
+  }
+};
 
 module.exports = {
   registerComplaint,

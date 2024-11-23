@@ -6,12 +6,13 @@ const complaintSchema = new Schema(
     student: {
       type: Schema.Types.ObjectId,
       ref: "Student",
-      required: true, // Make this field mandatory
+      required: [true, "Student reference is required"],
+      index: true, // Index for faster lookups
     },
     hostel: {
       type: Schema.Types.ObjectId,
       ref: "Hostel",
-      required: true, // All complaints must be tied to a hostel
+      required: [true, "Hostel reference is required"],
     },
     room: {
       type: Schema.Types.ObjectId,
@@ -19,36 +20,42 @@ const complaintSchema = new Schema(
     },
     type: {
       type: String,
-      required: true,
-      minlength: 3, // Minimum length for the type string
-      maxlength: 50, // Maximum length for the type string
+      required: [true, "Complaint type is required"],
+      minlength: [3, "Complaint type must be at least 3 characters long"],
+      maxlength: [50, "Complaint type cannot exceed 50 characters"],
+      trim: true, // Remove unnecessary spaces
     },
     description: {
       type: String,
-      required: true,
-      minlength: 10, // Minimum length for descriptions
-      maxlength: 500, // Maximum length for descriptions
+      required: [true, "Description is required"],
+      minlength: [10, "Description must be at least 10 characters long"],
+      maxlength: [500, "Description cannot exceed 500 characters"],
+      trim: true,
     },
     status: {
       type: String,
-      enum: ["Pending", "Solved", "Unsolved"], // Define possible statuses
+      enum: ["Pending", "Solved", "Unsolved"],
       default: "Pending",
+      index: true, // Index for filtering by status
     },
     resolvedMessage: {
       type: String,
-      maxlength: 500, // Restrict the length of resolved messages
+      maxlength: [500, "Resolved message cannot exceed 500 characters"],
+      trim: true,
     },
     notSolvedReason: {
       type: String,
-      maxlength: 500, // Restrict the length of the not solved reason
+      maxlength: [500, "Reason for unsolved status cannot exceed 500 characters"],
+      trim: true,
     },
     feedback: {
       type: String,
-      maxlength: 500, // Optional feedback when marking "Not Satisfied"
+      maxlength: [500, "Feedback cannot exceed 500 characters"],
+      trim: true,
     },
     notifiedToAdmin: {
       type: Boolean,
-      default: false, // Whether admin is notified of dissatisfaction
+      default: false,
     },
     statusHistory: [
       {
@@ -59,7 +66,7 @@ const complaintSchema = new Schema(
         },
         changedBy: {
           type: Schema.Types.ObjectId,
-          ref: "Warden", // Reference to the admin or student
+          ref: "Warden",
         },
         changedAt: {
           type: Date,
@@ -69,14 +76,26 @@ const complaintSchema = new Schema(
     ],
     date: {
       type: Date,
-      default: Date.now, // Automatically set to the current date
+      default: Date.now,
     },
   },
   {
-    timestamps: true, // Automatically add createdAt and updatedAt fields
+    timestamps: true,
   }
 );
 
+// Middleware to update statusHistory automatically
+complaintSchema.pre("save", function (next) {
+  if (this.isModified("status")) {
+    this.statusHistory.push({
+      status: this.status,
+      changedBy: this._id, // You can adjust this to use the actual user ID
+    });
+  }
+  next();
+});
+
+// Export model
 const Complaint = mongoose.model("Complaint", complaintSchema);
 
 module.exports = Complaint;
