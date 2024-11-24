@@ -1,7 +1,5 @@
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
-const Student = require('../models/Student');
-const User = require('../models/User');
 dotenv.config();
 
 const generateToken = (userId, isAdmin) => {
@@ -36,7 +34,6 @@ const authMiddleware = async (req, res, next) => {
 };
 
 const verifySession = (req, res, next) => {
-  console.log(req.session.userId)
   if (!req.session.userId) {
     return res.status(401).json({ msg: 'Authorization header missing' });
   }

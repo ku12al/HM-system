@@ -38,9 +38,6 @@ const registerAdmin = async (req, res) => {
       password: hashPassword,
       isAdmin: true,
     });
-
-    
-
     const neadmin = new Warden({
       name,
       erpid,

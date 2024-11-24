@@ -1,5 +1,4 @@
 const express = require('express');
-const { check } = require('express-validator');
 const { registerAdmin,  getWardenData} = require('../controller/wardenControl');
 const router = express.Router();
 

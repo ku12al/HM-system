@@ -1,22 +1,16 @@
-const { validationResult } = require("express-validator");
+
 const Request = require("../models/Request");
 
 
 
 const requestRegister = async (req, res) => {
-      const errors = validationResult(req);
       try{
-            if(!errors.isEmpty()){
-                  return res.status(200).json({errors:errors.array()})
-            }
-
             const {erpid} = req.body;
             
             const request = await Request.findOne({erpid});
             if(request){
                   return res.status(500).json({errors: [{message:"request already exists"}]})
             }
-
             const newRequest = new Request({
                   erpid
             })

@@ -5,7 +5,6 @@ const router = express.Router();
 router.post("/mark-present", markPresent);
 router.get("/attendence-check", checkAttendance);
 router.get("/attendence-check-at-date", checkAttendanceAtDate);
-
 router.post("/mark-absent", markAbsent)
 
 
