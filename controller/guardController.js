@@ -1,6 +1,6 @@
 
 
-const scanQr = async (req, res) =>{
+const scanOunting = async (req, res) =>{
       try{
             
 

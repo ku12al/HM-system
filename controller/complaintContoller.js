@@ -196,7 +196,7 @@ const updateComplaintStatus = async (req, res) => {
     }
     const updateFields = {};
     if (action === "satisfied") {
-      updateFields.isVisibleToStudent = false; // Mark as invisible in interface
+      updateFields.notifiedToAdmin = true; // Mark as invisible in interface
       updateFields.resolvedMessage = "Student marked as satisfied.";
     } else if (action === "notSatisfied") {
       if (!reason || reason.trim().length < 10) {
@@ -205,6 +205,7 @@ const updateComplaintStatus = async (req, res) => {
           msg: "Reason for dissatisfaction must be at least 10 characters long",
         });
       }
+      updateFields.notifiedToAdmin = false;
       updateFields.notSolvedReason = reason;
       // await sendNotificationToSuperAdmin(updatedComplaint._id, reason);
     }

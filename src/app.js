@@ -14,6 +14,7 @@ dotenv.config();
 // Import routes
 const studentRoutes = require("../routes/student");
 const authRouter = require("../routes/authRoutes");
+// const gaurdRouter = require("../routes/gaurdRoutes.js");
 const requestRoutes = require("../routes/requestRoutes");
 const complaintRoutes = require("../routes/complaintRoutes");
 const leaveRoutes = require("../routes/leaveRoutes");
@@ -21,6 +22,7 @@ const hostelRoutes = require("../routes/hostelRoutes");
 const attendanceRoutes = require("../routes/attendanceRouter");
 const roomRoutes = require("../routes/roomsRoutes");
 const wardenRoutes = require("../routes/wardenRoutes");
+// const superadminRoutes = require("../routes/superadminRoutes");
 
 // Add CORS middleware
 app.use(cors());
@@ -40,6 +42,7 @@ app.use(session({
 // Define routes
 app.use("/api/register", studentRoutes);
 app.use("/api/auth", authRouter);
+// app.use("/api/gaurd", gaurdRouter);
 app.use("/api/request", requestRoutes);
 app.use("/api/complaint", complaintRoutes);
 app.use("/api/leave", leaveRoutes);
@@ -47,6 +50,8 @@ app.use("/api/hostel", hostelRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/warden", wardenRoutes);
+// app.use("/api/superadmin", superadminRoutes);
+
 
 // Start the server
 app.listen(port, () => {
