@@ -158,7 +158,7 @@ const unsolvedComplaint = async (req, res) => {
 
 
 
-//get own complaint student by id means student get complait own complaint in own app
+//get own complaint student by id means student get complaint own complaint in own app
 const getComplaintByStudent = async(req, res) =>{
   try{
     const studentId = req.params.id; //student id 
