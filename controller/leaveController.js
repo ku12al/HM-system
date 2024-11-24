@@ -90,7 +90,7 @@ const approveLeave = async (req, res) => {
     const qrCodeData = `${leave.student.erpid}-${leave.approvalDate.getTime()}`;
     const qrCode = await QRCode.toDataURL(qrCodeData);
 
-    leave.qrCode = qrCode;
+    leave.qrcode = qrCode;
     await leave.save();
 
     res.status(200).json({

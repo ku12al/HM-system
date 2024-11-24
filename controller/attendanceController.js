@@ -324,6 +324,7 @@ const checkAttendance = async (req, res) => {
   }
 };
 
+
 // Check Attendance for a Custom Date Range
 const checkAttendanceAtDate = async (req, res) => {
   try {
