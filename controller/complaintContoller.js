@@ -1,6 +1,6 @@
 const Complaint = require("../models/Complaint");
 const Student = require("../models/Student");
-const User = require("../models/user");
+const User = require("../models/User");
 
 const registerComplaint = async (req, res) => {
   try {
