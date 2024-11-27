@@ -1,16 +1,19 @@
 const Complaint = require("../models/Complaint");
 const Student = require("../models/Student");
+const User = require("../models/user");
 
 const registerComplaint = async (req, res) => {
   try {
     const { type, description} = req.body;
+    
 
-    const student = await Student.findOne({ user: req.body.userId });
-
-    if (!student) {
+    const user = await User.findById(req.body.userId);
+    console.log(user);
+    if (!user) {
       return res.status(404).json({ success: false, msg: "Student not found" });
     }
 
+    const student = await Student.findOne({ user:  user._id});
     // Create a new complaint with the student's details
     const newComplaint = new Complaint({
       student: student._id, // Using the student ID for reference
@@ -159,30 +162,42 @@ const unsolvedComplaint = async (req, res) => {
 
 
 //get own complaint student by id means student get complaint own complaint in own app
-const getComplaintByStudent = async(req, res) =>{
-  try{
-    const studentId = req.params.id; //student id 
+const getComplaintByStudent = async (req, res) => {
+  try {
+    const userId = req.params.id; // student userId 
 
-    // Fetch complaints with nested population
-    const complaints = await Complaint.find({ student: studentId }).populate({
-      path: "student", // Correct field name for student reference in Complaint schema
-      select: "erpid name room", // Select specific fields from Student model
-      populate: {
-        path: "room", // Populate room field in the Student model
-        select: "roomNumber", // Select specific fields from Room model
-      },
-    });
+    // Find the student by the userId
+    const student = await Student.findOne({ 'user': userId }).populate('room'); // Find the student and populate the room
+
+    // Check if the student exists
+    if (!student) {
+      return res.status(404).json({ success: false, msg: "Student not found" });
+    }
+
+    // Fetch complaints associated with the student and populate related fields
+    const complaints = await Complaint.find({ student: student._id })
+      .populate({
+        path: "student", // Populate the student field in the Complaint model
+        select: "erpid name", // Select fields from the student model
+        populate: {
+          path: "room", // Populate the room field in the student model
+          select: "roomNumber", // Select specific fields from the Room model
+        },
+      });
+
     // Check if no complaints were found
     if (complaints.length === 0) {
-      return res.json({ success: true, msg: "You haven't registered any complaint" });
+      return res.json({ success: true, msg: "You haven't registered any complaints" });
     }
 
     // Return complaints with populated fields
     res.json({ success: true, complaints });
-  }catch(err){
-    return res.status(505).json({success: false, msg: "Server error"});
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success: false, msg: "Server error" });
   }
-}
+};
+
 
 
 
