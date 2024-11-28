@@ -11,7 +11,7 @@ const roomRegister = async (req, res) => {
 
   const { hostelname, roomNumber, capacity } = req.body;
   try {
-    const shostel = await Hostel.findOne({ hostelname : hostelname });
+    const shostel = await Hostel.findOne({ hostelname: hostelname });
     if (!shostel) {
       return res.status(400).json({ message: "hostel not found" });
     }
@@ -25,7 +25,7 @@ const roomRegister = async (req, res) => {
       hostelname,
       roomNumber,
       capacity,
-    })
+    });
     await room.save();
     success = true;
     return res
@@ -37,33 +37,33 @@ const roomRegister = async (req, res) => {
   }
 };
 
-
 // Endpoint to get students assigned to a room
 const markByStudent = async (req, res) => {
-      let success = false;
-      const errors = validationResult(req);
-      if(!errors.isEmpty()){
-            return res.status(200).json({success, errors: errors.array()});
-      }
-      const { roomNumber } = req.body;
-      try {
-        const room = await Room.findOne({ roomNumber: roomNumber }).populate('students');
-        console.log(room);
-        if (!room) {
-          throw new Error(`Room with room number ${roomNumber} not found`);
-        }
-        const students = room.students.map(student => ({
-          _id: student._id,
-          name: student.student
-        }));
-        res.json(students);
-      } catch (error) {
-        res.status(500).json({ error: error.message });
-      }
-}
+  let success = false;
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(200).json({ success, errors: errors.array() });
+  }
+  const { roomNumber } = req.body;
+  try {
+    const room = await Room.findOne({ roomNumber: roomNumber }).populate(
+      "students"
+    );
+    console.log(room);
+    if (!room) {
+      throw new Error(`Room with room number ${roomNumber} not found`);
+    }
+    const students = room.students.map((student) => ({
+      _id: student._id,
+      name: student.student,
+    }));
+    res.json(students);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
-
-module.exports ={
-      roomRegister,
-      markByStudent,
-}
+module.exports = {
+  roomRegister,
+  markByStudent,
+};

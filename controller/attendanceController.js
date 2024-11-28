@@ -3,11 +3,10 @@
 // const Student = require("../models/Student");
 // const Attendance = require("../models/Attendance");
 
-
 // //mark student present
 // const markPresent = async (req, res) => {
 //   const today = new Date();
-  
+
 //   // Set the start of the day at 12:00 PM (midday)
 //   today.setHours(12, 0, 0, 0);
 
@@ -59,7 +58,6 @@
 //   }
 // };
 
-
 // //mark student absent
 // const markAbsent = async () => {
 //   try {
@@ -92,14 +90,12 @@
 //   }
 // };
 
-
-
 // //this code for check all student attendence
 
 // const checkAttendance = async (req, res) => {
 //   try {
 //     const today = new Date();
-    
+
 //     // Set start of the attendance day at 12:00 PM (midday)
 //     today.setHours(12, 0, 0, 0);
 
@@ -121,10 +117,10 @@
 
 //     // Map attendance status for each student
 //     const studentAttendance = allStudents.map(student => {
-//       const attendance = attendanceRecords.find(record => 
+//       const attendance = attendanceRecords.find(record =>
 //         record.student.toString() === student._id.toString()
 //       );
-      
+
 //       return {
 //         student: student,  // Student details
 //         status: attendance ? attendance.status : "Absent",  // Attendance status
@@ -138,8 +134,6 @@
 //     res.status(500).json({ success: false, message: "Server error" });
 //   }
 // };
-
-
 
 // const checkAttendanceAtDate = async (req, res) => {
 //   try {
@@ -181,7 +175,6 @@
 //     res.status(500).json({ success: false, message: "Server error" });
 //   }
 // };
-
 
 // // Function to mark absent students
 // const markAbsentStudents = async () => {
@@ -225,7 +218,11 @@ const Attendance = require("../models/Attendance");
 // Utility: Get Attendance Date Range
 const getAttendanceDateRange = (startDate, endDate) => {
   const start = moment(startDate).startOf("day").add(12, "hours").toDate(); // Start at 12 PM
-  const end = moment(endDate).endOf("day").add(12, "hours").subtract(1, "second").toDate(); // End at 11:59 AM next day
+  const end = moment(endDate)
+    .endOf("day")
+    .add(12, "hours")
+    .subtract(1, "second")
+    .toDate(); // End at 11:59 AM next day
   return { start, end };
 };
 
@@ -234,12 +231,16 @@ const markPresent = async (req, res) => {
   try {
     const { erpid } = req.body;
     if (!erpid) {
-      return res.status(400).json({ success: false, message: "ERPID is required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "ERPID is required" });
     }
 
     const student = await Student.findOne({ erpid });
     if (!student) {
-      return res.status(404).json({ success: false, message: "Student not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Student not found" });
     }
 
     const { start, end } = getAttendanceDateRange(new Date(), new Date());
@@ -263,10 +264,14 @@ const markPresent = async (req, res) => {
     });
     await attendance.save();
 
-    res.status(200).json({ success: true, message: "Attendance marked as present" });
+    res
+      .status(200)
+      .json({ success: true, message: "Attendance marked as present" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Failed to mark attendance" });
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to mark attendance" });
   }
 };
 
@@ -277,9 +282,11 @@ const markAbsent = async () => {
 
     const absentStudents = await Student.find({
       _id: {
-        $nin: (await Attendance.find({ date: { $gte: start, $lte: end } }).select("student")).map(
-          (attendance) => attendance.student
-        ),
+        $nin: (
+          await Attendance.find({ date: { $gte: start, $lte: end } }).select(
+            "student"
+          )
+        ).map((attendance) => attendance.student),
       },
     });
 
@@ -305,11 +312,15 @@ const checkAttendance = async (req, res) => {
   try {
     const { start, end } = getAttendanceDateRange(new Date(), new Date());
 
-    const attendanceRecords = await Attendance.find({ date: { $gte: start, $lte: end } }).populate("student");
+    const attendanceRecords = await Attendance.find({
+      date: { $gte: start, $lte: end },
+    }).populate("student");
     const allStudents = await Student.find({});
 
     const studentAttendance = allStudents.map((student) => {
-      const record = attendanceRecords.find((rec) => rec.student._id.equals(student._id));
+      const record = attendanceRecords.find((rec) =>
+        rec.student._id.equals(student._id)
+      );
       return {
         student,
         status: record ? record.status : "Absent",
@@ -320,26 +331,33 @@ const checkAttendance = async (req, res) => {
     res.status(200).json({ success: true, records: studentAttendance });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Failed to fetch attendance" });
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to fetch attendance" });
   }
 };
-
 
 // Check Attendance for a Custom Date Range
 const checkAttendanceAtDate = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
     if (!startDate || !endDate) {
-      return res.status(400).json({ success: false, message: "Start and end dates are required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Start and end dates are required" });
     }
 
     const { start, end } = getAttendanceDateRange(startDate, endDate);
 
-    const attendanceRecords = await Attendance.find({ date: { $gte: start, $lte: end } }).populate("student");
+    const attendanceRecords = await Attendance.find({
+      date: { $gte: start, $lte: end },
+    }).populate("student");
     const allStudents = await Student.find({});
 
     const studentAttendance = allStudents.map((student) => {
-      const record = attendanceRecords.find((rec) => rec.student._id.equals(student._id));
+      const record = attendanceRecords.find((rec) =>
+        rec.student._id.equals(student._id)
+      );
       return {
         student,
         status: record ? record.status : "Absent",
@@ -350,7 +368,9 @@ const checkAttendanceAtDate = async (req, res) => {
     res.status(200).json({ success: true, records: studentAttendance });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Failed to fetch attendance" });
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to fetch attendance" });
   }
 };
 
@@ -366,4 +386,3 @@ module.exports = {
   checkAttendance,
   checkAttendanceAtDate,
 };
-

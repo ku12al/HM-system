@@ -18,7 +18,15 @@ const leaveRequest = async (req, res) => {
     return res.status(400).json({ success: false, errors: errors.array() });
   }
 
-  const { erpid, roomNumber, hostelname, parentName, parentNumber, title, reason } = req.body;
+  const {
+    erpid,
+    roomNumber,
+    hostelname,
+    parentName,
+    parentNumber,
+    title,
+    reason,
+  } = req.body;
 
   try {
     const student = await findUserByErpId(erpid);
@@ -53,7 +61,9 @@ const leaveRequest = async (req, res) => {
     student.leaves.push(newLeave._id);
     await student.save();
 
-    res.status(201).json({ success: true, msg: "Leave application submitted successfully" });
+    res
+      .status(201)
+      .json({ success: true, msg: "Leave application submitted successfully" });
   } catch (err) {
     console.error("Error submitting leave request:", err);
     res.status(500).json({ success: false, msg: "Server error" });
@@ -68,11 +78,15 @@ const approveLeave = async (req, res) => {
     const leave = await Leave.findById(leaveId).populate("student");
 
     if (!leave) {
-      return res.status(404).json({ success: false, msg: "Leave request not found" });
+      return res
+        .status(404)
+        .json({ success: false, msg: "Leave request not found" });
     }
 
     if (leave.status !== "Pending") {
-      return res.status(400).json({ success: false, msg: "Leave request already processed" });
+      return res
+        .status(400)
+        .json({ success: false, msg: "Leave request already processed" });
     }
 
     leave.status = "Approved";

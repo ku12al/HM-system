@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const {getAllComplaints} = require('../controller/superadminController')
+const {getAllComplaint} = require('../controller/superadminController')
 
-router.get('/getAllComplaints', getAllComplaints);
+router.get('/getAllComplaints', getAllComplaint);
 module.exports = router;
 

@@ -140,7 +140,6 @@ const registerStudent = async (req, res) => {
   }
 };
 
-
 //qr for student registration
 const Qrcode = async (req, res) => {
   try {
@@ -159,7 +158,6 @@ const Qrcode = async (req, res) => {
     console.error(err);
   }
 };
-
 
 //get student data through student passwrod tokken
 const getStudent = async (req, res) => {
@@ -203,8 +201,6 @@ const getStudent = async (req, res) => {
   }
 };
 
-
-
 //get room details of the student
 const getRoomDetails = async (req, res) => {
   try {
@@ -220,14 +216,15 @@ const getRoomDetails = async (req, res) => {
         .json({ success: false, error: "student not exists" });
     }
 
-    const roomDetails = await Room.findOne({ _id: student.room }).populate({
-      path: "students.student", // Populate the 'student' field inside 'students' array
-      select: "name", // Only select the 'name' field of the student
-    }).populate({
-      path: "hostel", // Populate the hostel details
-      select: "hostelname", // Only select the hostel name field
-    });
-
+    const roomDetails = await Room.findOne({ _id: student.room })
+      .populate({
+        path: "students.student", // Populate the 'student' field inside 'students' array
+        select: "name", // Only select the 'name' field of the student
+      })
+      .populate({
+        path: "hostel", // Populate the hostel details
+        select: "hostelname", // Only select the hostel name field
+      });
 
     if (!roomDetails) {
       return res
@@ -242,10 +239,6 @@ const getRoomDetails = async (req, res) => {
     return res.status(500).json({ success: false, errors: "server error" });
   }
 };
-
-
-
-
 
 //update students
 const updatesStudent = async (req, res) => {
@@ -300,12 +293,6 @@ const updatesStudent = async (req, res) => {
       .json({ success: false, errors: [{ message: "server error" }] });
   }
 };
-
-
-
-
-
-
 
 //delete student data ---------
 const deleteStudent = async (req, res) => {

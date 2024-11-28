@@ -4,8 +4,7 @@ const User = require("../models/User");
 
 const registerComplaint = async (req, res) => {
   try {
-    const { type, description} = req.body;
-    
+    const { type, description } = req.body;
 
     const user = await User.findById(req.body.userId);
     console.log(user);
@@ -13,7 +12,7 @@ const registerComplaint = async (req, res) => {
       return res.status(404).json({ success: false, msg: "Student not found" });
     }
 
-    const student = await Student.findOne({ user:  user._id});
+    const student = await Student.findOne({ user: user._id });
     // Create a new complaint with the student's details
     const newComplaint = new Complaint({
       student: student._id, // Using the student ID for reference
@@ -24,14 +23,16 @@ const registerComplaint = async (req, res) => {
     });
     await newComplaint.save();
 
-    res.json({ success: true, msg: "Complaint registered successfully", newComplaint});
+    res.json({
+      success: true,
+      msg: "Complaint registered successfully",
+      newComplaint,
+    });
   } catch (err) {
     console.log(err.message);
     res.status(500).send("sever error");
   }
 };
-
-
 
 //this is get all complaint for every pages
 const getComplaint = async (req, res) => {
@@ -85,7 +86,6 @@ const getComplaint = async (req, res) => {
   }
 };
 
-
 // // Function to simulate sending a notification to the student
 // const sendNotification = async (studentId, message) => {
 //   try {
@@ -101,13 +101,10 @@ const getComplaint = async (req, res) => {
 //   }
 // };
 
-
-
 //warden press the button for solved the complaint
 const solvedComplaints = async (req, res) => {
   try {
-
-    const complaintId = req.params.id; // complaint id 
+    const complaintId = req.params.id; // complaint id
     // Check if complaint ID is undefined
     if (!complaintId) {
       return res.status(400).json({ msg: "Complaint ID is missing" });
@@ -120,25 +117,26 @@ const solvedComplaints = async (req, res) => {
     }
 
     console.log("Updating complaint to 'solved' status...");
-    complaint.status = 'Solved';
+    complaint.status = "Solved";
     await complaint.save();
 
     console.log("Complaint updated successfully");
 
-    res.json({ success: true, msg: "Complaint marked as solved and notification sent." });
+    res.json({
+      success: true,
+      msg: "Complaint marked as solved and notification sent.",
+    });
   } catch (err) {
     console.error("Error in solvedComplaints:", err.message);
     res.status(500).send("Server error");
   }
 };
 
-
-
 //warden press button to ignore the complaint
 const unsolvedComplaint = async (req, res) => {
   try {
     const complaintId = req.params.id; //complaint id
-    const {status, notSolvedReason } = req.body;
+    const { status, notSolvedReason } = req.body;
     const complaint = await Complaint.findById(complaintId);
     if (!complaint) {
       return res
@@ -147,7 +145,7 @@ const unsolvedComplaint = async (req, res) => {
     }
 
     complaint.status = status;
-    if (status === 'Unsolved') {
+    if (status === "Unsolved") {
       complaint.notSolvedReason = notSolvedReason;
     }
 
@@ -159,15 +157,13 @@ const unsolvedComplaint = async (req, res) => {
   }
 };
 
-
-
 //get own complaint student by id means student get complaint own complaint in own app
 const getComplaintByStudent = async (req, res) => {
   try {
-    const userId = req.params.id; // student userId 
+    const userId = req.params.id; // student userId
 
     // Find the student by the userId
-    const student = await Student.findOne({ 'user': userId }).populate('room'); // Find the student and populate the room
+    const student = await Student.findOne({ user: userId }).populate("room"); // Find the student and populate the room
 
     // Check if the student exists
     if (!student) {
@@ -175,19 +171,21 @@ const getComplaintByStudent = async (req, res) => {
     }
 
     // Fetch complaints associated with the student and populate related fields
-    const complaints = await Complaint.find({ student: student._id })
-      .populate({
-        path: "student", // Populate the student field in the Complaint model
-        select: "erpid name", // Select fields from the student model
-        populate: {
-          path: "room", // Populate the room field in the student model
-          select: "roomNumber", // Select specific fields from the Room model
-        },
-      });
+    const complaints = await Complaint.find({ student: student._id }).populate({
+      path: "student", // Populate the student field in the Complaint model
+      select: "erpid name", // Select fields from the student model
+      populate: {
+        path: "room", // Populate the room field in the student model
+        select: "roomNumber", // Select specific fields from the Room model
+      },
+    });
 
     // Check if no complaints were found
     if (complaints.length === 0) {
-      return res.json({ success: true, msg: "You haven't registered any complaints" });
+      return res.json({
+        success: true,
+        msg: "You haven't registered any complaints",
+      });
     }
 
     // Return complaints with populated fields
@@ -197,9 +195,6 @@ const getComplaintByStudent = async (req, res) => {
     return res.status(500).json({ success: false, msg: "Server error" });
   }
 };
-
-
-
 
 //satisfied or not satisfied by student
 const updateComplaintStatus = async (req, res) => {
@@ -230,15 +225,21 @@ const updateComplaintStatus = async (req, res) => {
       { new: true }
     );
     if (!updatedComplaint) {
-      return res.status(404).json({ success: false, msg: "Complaint not found" });
+      return res
+        .status(404)
+        .json({ success: false, msg: "Complaint not found" });
     }
 
     if (action === "notSatisfied") {
       // Notify super admin
       await sendNotificationToSuperAdmin(updatedComplaint._id, reason);
     }
-    
-    res.json({ success: true, msg: "Complaint updated successfully", updatedComplaint });
+
+    res.json({
+      success: true,
+      msg: "Complaint updated successfully",
+      updatedComplaint,
+    });
   } catch (err) {
     res.status(500).json({ success: false, msg: "Server error" });
   }
@@ -261,5 +262,5 @@ module.exports = {
   solvedComplaints,
   unsolvedComplaint,
   getComplaintByStudent,
-  updateComplaintStatus
+  updateComplaintStatus,
 };

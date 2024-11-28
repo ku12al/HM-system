@@ -1,27 +1,42 @@
-const express = require('express');
+const Complaint = require("../models/Complaint");
 
+const getAllComplaint = async (req, res) => {
+  try {
+    // Filter to show only unsolved complaints
+    const filter = { status: "unsolved" };
 
-//get all leaves applications
+    const complaints = await Complaint.aggregate([
+      { $match: filter }, // Match complaints with status "unsolved"
+      { $sort: { date: -1 } }, // Sort by most recent date
+      {
+        $lookup: {
+          from: "students",
+          localField: "student",
+          foreignField: "_id",
+          as: "studentDetails",
+        },
+      },
+      { $unwind: "$studentDetails" }, // Deconstruct studentDetails array
+      {
+        $project: {
+          _id: 1,
+          type: 1,
+          description: 1,
+          status: 1,
+          date: 1,
+          "studentDetails.name": 1,
+          "studentDetails.room_no": 1,
+        },
+      },
+    ]);
 
-
-//get all attendence of students
-
-
-//get all red cases of students
-
-//get all outing information for students
-
-
-
-const getAllComplaints = async(req, res) =>{
-      try{
-
-      }catch(err){
-            return res.status(500).json({success: false, msg: "server error"})
-      }
-}
+    res.json({ success: true, complaints });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server error");
+  }
+};
 
 module.exports = {
-      getAllComplaints,
-
-}
+  getAllComplaint,
+};
