@@ -5,11 +5,12 @@ const Room = require("../models/Rooms");
 const Hostel = require("../models/Hostel");
 const Attendance = require("../models/Attendance");
 const User = require("../models/User");
+const Student = require("../models/Student");
 
-// Utility: Fetch User by ERP ID
-const findUserByErpId = async (erpid) => {
-  return User.findOne({ erpid }).populate("leaves");
-};
+// // Utility: Fetch User by ERP ID
+// const findUserByErpId = async (erpid) => {
+//   return Student.findOne({ erpid }).populate("student");
+// };
 
 // Submit Leave Request
 const leaveRequest = async (req, res) => {
@@ -29,7 +30,7 @@ const leaveRequest = async (req, res) => {
   } = req.body;
 
   try {
-    const student = await findUserByErpId(erpid);
+    const student = await Student.findOne({erpid});
     if (!student) {
       return res.status(404).json({ success: false, msg: "Student not found" });
     }
