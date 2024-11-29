@@ -27,10 +27,13 @@ const leaveRequest = async (req, res) => {
     parentNumber,
     title,
     reason,
+    leaveDate,
+    leaveTime,
+    returnDate,
   } = req.body;
 
   try {
-    const student = await Student.findOne({erpid});
+    const student = await Student.findOne({ erpid });
     if (!student) {
       return res.status(404).json({ success: false, msg: "Student not found" });
     }
@@ -54,6 +57,10 @@ const leaveRequest = async (req, res) => {
       parentNumber,
       title,
       reason,
+      leaveDate: new Date(leaveDate), // Ensure leaveDate is a valid date
+      leaveTime,
+      returnDate: returnDate ? new Date(returnDate) : null,
+      status: "pending", // Default status
     });
 
     await newLeave.save();

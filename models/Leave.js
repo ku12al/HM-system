@@ -39,6 +39,15 @@ const leaveSchema = new Schema({
             type:String,
             enum:'pending' || 'approved' || 'decline'
       },
+      leaveDate: {
+            type: Date, 
+            required: true 
+      }, // Date when the student goes out
+      leaveTime: { type: String, required: true }, // Leave time as a string
+      returnDate: { 
+            type: Date 
+      }, // Optional: Date when the student is expected to return
+      returnTime: { type: String }, // Optional return time
       qrcode:{
             type:String,
       },
