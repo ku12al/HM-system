@@ -5,7 +5,7 @@ const {registerStudent,Qrcode, getStudent,getRoomDetails, updatesStudent, delete
 
 router.post("/register-student", registerStudent);
 router.get("/qr", Qrcode);
-router.get("/get-student", getStudent)
+router.get("/get-student/:id", getStudent)
 router.get("/get-room-details", getRoomDetails);
 router.post("/update-student", updatesStudent);
 router.post("/delete-student", deleteStudent)

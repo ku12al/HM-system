@@ -57,7 +57,7 @@ const studentSchema = new Schema({
             required: true
       },
       room: {
-            type: mongoose.Schema.Types.ObjectId,
+            type:Schema.Types.ObjectId,
             ref: 'Room',
             required: true
       },

@@ -162,7 +162,7 @@ const Qrcode = async (req, res) => {
 //get student data through student passwrod tokken
 const getStudent = async (req, res) => {
   try {
-    const { userId } = req.body;
+    const userId = req.params.id;
 
     // const decode = verifyToken(token);
     // console.log(decode)
@@ -173,7 +173,12 @@ const getStudent = async (req, res) => {
     //     .status(403)
     //     .json({ success: false, error: "Admin cannot access student data" });
     // }
-    const student = await Student.findOne({ user: userId })
+    if (userId && mongoose.Types.ObjectId.isValid(userId.trim())) {
+      sanitizedId = userId.trim();
+    } else {
+      return res.status(400).send({ error: "Invalid user ID" });
+    }
+    const student = await Student.findOne({ user: sanitizedId })
       .populate({
         path: "room", // Populate the room details
         select: "roomNumber", // Only select the room number field
@@ -189,7 +194,6 @@ const getStudent = async (req, res) => {
         .status(404)
         .json({ success: false, errors: "Student not found" });
     }
-
     // Send the student data including the QR code
     res.json({
       success: true,
@@ -207,8 +211,6 @@ const getRoomDetails = async (req, res) => {
     const { userId } = req.body;
 
     const student = await Student.findOne({ user: userId });
-
-    // console.log(student);
 
     if (!student) {
       return res
