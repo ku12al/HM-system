@@ -12,15 +12,16 @@ const Student = require("../models/Student");
 //   return Student.findOne({ erpid }).populate("student");
 // };
 
+
 // Submit Leave Request
 const leaveRequest = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ success: false, errors: errors.array() });
   }
-
   const {
     erpid,
+    name,
     roomNumber,
     hostelname,
     parentName,
@@ -50,6 +51,7 @@ const leaveRequest = async (req, res) => {
 
     const newLeave = new Leave({
       erpid,
+      name: student.name,
       student: student._id,
       roomNumber: room._id,
       hostel: hostel._id,
@@ -77,6 +79,8 @@ const leaveRequest = async (req, res) => {
     res.status(500).json({ success: false, msg: "Server error" });
   }
 };
+
+
 
 // Approve Leave Request
 const approveLeave = async (req, res) => {
@@ -125,6 +129,9 @@ const approveLeave = async (req, res) => {
     res.status(500).json({ success: false, msg: "Server error" });
   }
 };
+
+
+
 
 // Get Leave Details for a Student
 const getLeaveDetails = async (req, res) => {
