@@ -12,7 +12,7 @@ const Student = require("../models/Student");
 //   return Student.findOne({ erpid }).populate("student");
 // };
 
-// Submit Leave Request
+// Submit Leave Request for home
 const leaveRequest = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -63,6 +63,74 @@ const leaveRequest = async (req, res) => {
       returnDate: returnDate ? new Date(returnDate) : null,
       status: "Pending", // Default status
     });
+
+    await newLeave.save();
+
+    student.leaves = student.leaves || [];
+    student.leaves.push(newLeave._id);
+    await student.save();
+
+    res
+      .status(201)
+      .json({ success: true, msg: "Leave application submitted successfully" });
+  } catch (err) {
+    console.error("Error submitting leave request:", err);
+    res.status(500).json({ success: false, msg: "Server error" });
+  }
+};
+
+
+
+const outingRequest = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ success: false, errors: errors.array() });
+  }
+  console.log("inowne")
+  const {
+    erpid,
+    name,
+    roomNumber,
+    hostelname,
+    title,
+    reason,
+    leaveDate,
+    leaveTime,
+  } = req.body;
+  console.log("inowne")
+
+  try {
+    const student = await Student.findOne({ erpid });
+    if (!student) {
+      return res.status(404).json({ success: false, msg: "Student not found" });
+    }
+    console.log("inowne")
+
+    const hostel = await Hostel.findOne({ hostelname });
+    if (!hostel) {
+      return res.status(404).json({ success: false, msg: "Hostel not found" });
+    }
+    console.log("inowne")
+
+    const room = await Room.findOne({ roomNumber });
+    if (!room) {
+      return res.status(404).json({ success: false, msg: "Room not found" });
+    }
+  console.log("inowne")
+
+    const newLeave = new Leave({
+      erpid,
+      name: student.name,
+      student: student._id,
+      roomNumber: room._id,
+      hostel: hostel._id,
+      title,
+      reason,
+      leaveDate: new Date(leaveDate), // Ensure leaveDate is a valid date
+      leaveTime,
+      status: "OutingRequest", // Default status
+    });
+    console.log("inowne")
 
     await newLeave.save();
 
@@ -179,6 +247,7 @@ const getAllLeaveDetails = async (req, res) => {
           date: 1,
           leaveDate: 1, // Include leave date
           leaveTime: 1, // Include leave time
+          returnDate: 1,
           reason: 1,
           "studentDetails.name": 1,
           "roomDetails.roomNumber": 1,
@@ -225,4 +294,5 @@ module.exports = {
   approveLeave,
   getLeaveDetails,
   getAllLeaveDetails,
+  outingRequest,
 };

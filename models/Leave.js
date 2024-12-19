@@ -20,11 +20,11 @@ const leaveSchema = new Schema({
       },
       parentName:{
             type:String,
-            required:true
+            // required:true
       },
       parentNumber:{
             type:Number,
-            required:true,
+            // required:true,
 
       },
       title:{
@@ -37,7 +37,7 @@ const leaveSchema = new Schema({
       },
       status:{
             type:String,
-            enum:["Pending" , "Approved", "Decline"]
+            enum:["Pending" , "Approved", "Decline", "OutingRequest"]
       },
       leaveDate: {
             type: Date, 
