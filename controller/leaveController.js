@@ -48,7 +48,7 @@ const leaveRequest = async (req, res) => {
     if (!room) {
       return res.status(404).json({ success: false, msg: "Room not found" });
     }
-
+    console.log(student.name);
     const newLeave = new Leave({
       erpid,
       name: student.name,
@@ -62,7 +62,7 @@ const leaveRequest = async (req, res) => {
       leaveDate: new Date(leaveDate), // Ensure leaveDate is a valid date
       leaveTime,
       returnDate: returnDate ? new Date(returnDate) : null,
-      status: "pending", // Default status
+      status: "Pending", // Default status
     });
 
     await newLeave.save();
@@ -82,12 +82,15 @@ const leaveRequest = async (req, res) => {
 
 
 
+
 // Approve Leave Request
 const approveLeave = async (req, res) => {
-  const { leaveId } = req.body;
+  const leaveId = req.params.id;
 
   try {
+    console.log("jkejfkw")
     const leave = await Leave.findById(leaveId).populate("student");
+    console.log("jkejfkw")
 
     if (!leave) {
       return res
@@ -95,11 +98,12 @@ const approveLeave = async (req, res) => {
         .json({ success: false, msg: "Leave request not found" });
     }
 
-    if (leave.status !== "Pending") {
-      return res
-        .status(400)
-        .json({ success: false, msg: "Leave request already processed" });
-    }
+    // if (leave.status !== "Pending") {
+    //   return res
+    //     .status(400)
+    //     .json({ success: false, msg: "Leave request already processed" });
+    // }
+    console.log(leave.status);
 
     leave.status = "Approved";
     leave.approvalDate = new Date();
@@ -132,19 +136,70 @@ const approveLeave = async (req, res) => {
 
 
 
+const getAllLeaveDetails = async (req, res) => {
+    try {
+      const { status } = req.query; // Accept status as a query parameter
+      const filter = status ? { status: status } : {}; // Apply status filter if provided
+  
+      const leaves = await Leave.aggregate([
+        { $match: filter }, // Match complaints by status
+        {
+          $addFields: {
+            statusPriority: {
+              $switch: {
+                branches: [
+                  { case: { $eq: ["$status", "Pending"] }, then: 1 },
+                  { case: { $eq: ["$status", "Decline"] }, then: 2 },
+                  { case: { $eq: ["$status", "Approved"] }, then: 3 },
+                ],
+                default: 4,
+              },
+            },
+          },
+        },
+        { $sort: { statusPriority: 1, date: -1 } },
+        {
+          $lookup: {
+            from: "students",
+            localField: "student",
+            foreignField: "_id",
+            as: "studentDetails",
+          },
+        },
+        { $unwind: "$studentDetails" },
+        {
+          $project: {
+            _id: 1,
+            type: 1,
+            description: 1,
+            status: 1,
+            date: 1,
+            "studentDetails.name": 1,
+            "studentDetails.room_no": 1,
+          },
+        },
+      ]);
+  
+      res.json({ success: true, leaves });
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send("Server error");
+    }
+};
+
 
 // Get Leave Details for a Student
 const getLeaveDetails = async (req, res) => {
-  const { erpid } = req.params;
+  const leaveId  = req.params.id;
 
   try {
-    const student = await findUserByErpId(erpid);
+    const leaves = await Leave.find({ student: leaveId });
 
-    if (!student) {
-      return res.status(404).json({ success: false, msg: "Student not found" });
+    if (!leaves || leaves.length === 0) {
+      return res.status(404).json({ success: false, msg: "No leave records found for this student" });
     }
 
-    res.status(200).json({ success: true, leaves: student.leaves });
+    res.status(200).json({ success: true, leaves });
   } catch (err) {
     console.error("Error fetching leave details:", err);
     res.status(500).json({ success: false, msg: "Server error" });
@@ -155,4 +210,5 @@ module.exports = {
   leaveRequest,
   approveLeave,
   getLeaveDetails,
+  getAllLeaveDetails,
 };

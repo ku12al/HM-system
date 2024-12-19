@@ -8,15 +8,15 @@ const leaveSchema = new Schema({
       },
       student:{
             type:Schema.Types.ObjectId,
-            ref:'student'
+            ref:'Student'
       },
       roomNumber:{
             type:Schema.Types.ObjectId,
-            ref:'room'
+            ref:'Room'
       },
       hostel:{
             type:Schema.Types.ObjectId,
-            ref:'hostel'
+            ref:'Hostel'
       },
       parentName:{
             type:String,
@@ -37,7 +37,7 @@ const leaveSchema = new Schema({
       },
       status:{
             type:String,
-            enum:'pending' || 'approved' || 'decline'
+            enum:["Pending" , "Approved", "Decline"]
       },
       leaveDate: {
             type: Date, 
