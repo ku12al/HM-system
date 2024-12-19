@@ -12,7 +12,6 @@ const Student = require("../models/Student");
 //   return Student.findOne({ erpid }).populate("student");
 // };
 
-
 // Submit Leave Request
 const leaveRequest = async (req, res) => {
   const errors = validationResult(req);
@@ -80,17 +79,14 @@ const leaveRequest = async (req, res) => {
   }
 };
 
-
-
-
 // Approve Leave Request
 const approveLeave = async (req, res) => {
   const leaveId = req.params.id;
 
   try {
-    console.log("jkejfkw")
+    console.log("jkejfkw");
     const leave = await Leave.findById(leaveId).populate("student");
-    console.log("jkejfkw")
+    console.log("jkejfkw");
 
     if (!leave) {
       return res
@@ -134,69 +130,87 @@ const approveLeave = async (req, res) => {
   }
 };
 
-
-
 const getAllLeaveDetails = async (req, res) => {
-    try {
-      const { status } = req.query; // Accept status as a query parameter
-      const filter = status ? { status: status } : {}; // Apply status filter if provided
-  
-      const leaves = await Leave.aggregate([
-        { $match: filter }, // Match complaints by status
-        {
-          $addFields: {
-            statusPriority: {
-              $switch: {
-                branches: [
-                  { case: { $eq: ["$status", "Pending"] }, then: 1 },
-                  { case: { $eq: ["$status", "Decline"] }, then: 2 },
-                  { case: { $eq: ["$status", "Approved"] }, then: 3 },
-                ],
-                default: 4,
-              },
+  try {
+    const { status } = req.query; // Accept status as a query parameter
+    const filter = status ? { status: status } : {}; // Apply status filter if provided
+
+    const leaves = await Leave.aggregate([
+      { $match: filter }, // Match complaints by status
+      {
+        $addFields: {
+          statusPriority: {
+            $switch: {
+              branches: [
+                { case: { $eq: ["$status", "Pending"] }, then: 1 },
+                { case: { $eq: ["$status", "Decline"] }, then: 2 },
+                { case: { $eq: ["$status", "Approved"] }, then: 3 },
+              ],
+              default: 4,
             },
           },
         },
-        { $sort: { statusPriority: 1, date: -1 } },
-        {
-          $lookup: {
-            from: "students",
-            localField: "student",
-            foreignField: "_id",
-            as: "studentDetails",
-          },
+      },
+      { $sort: { statusPriority: 1, date: -1 } },
+      {
+        $lookup: {
+          from: "students",
+          localField: "student",
+          foreignField: "_id",
+          as: "studentDetails",
         },
-        { $unwind: "$studentDetails" },
-        {
-          $project: {
-            _id: 1,
-            type: 1,
-            description: 1,
-            status: 1,
-            date: 1,
-            "studentDetails.name": 1,
-            "studentDetails.room_no": 1,
-          },
+      },
+      { $unwind: "$studentDetails" },
+      {
+        $lookup: {
+          from: "rooms", // Join with rooms collection
+          localField: "studentDetails.room", // Field in the students collection referencing the room
+          foreignField: "_id", // Corresponding field in the rooms collection
+          as: "roomDetails", // Field to populate with room details
         },
-      ]);
-  
-      res.json({ success: true, leaves });
-    } catch (err) {
-      console.error(err.message);
-      res.status(500).send("Server error");
-    }
-};
+      },
+      { $unwind: "$roomDetails" },
+      {
+        $project: {
+          _id: 1,
+          type: 1,
+          description: 1,
+          status: 1,
+          date: 1,
+          leaveDate: 1, // Include leave date
+          leaveTime: 1, // Include leave time
+          reason: 1,
+          "studentDetails.name": 1,
+          "roomDetails.roomNumber": 1,
+          "studentDetails.erpid": 1,
+        },
+        // $project: {
+        //   statusPriority: 0, // Exclude statusPriority (it's only for sorting)
+        // },
+      },
+    ]);
 
+    res.json({ success: true, leaves });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server error");
+  }
+};
 
 // Get Leave Details for a Student
 const getLeaveDetails = async (req, res) => {
-  const leaveId  = req.params.id;
+  const leaveId = req.params.id;
 
   try {
     const leaves = await Leave.find({ student: leaveId });
 
     if (!leaves || leaves.length === 0) {
-      return res.status(404).json({ success: false, msg: "No leave records found for this student" });
+      return res
+        .status(404)
+        .json({
+          success: false,
+          msg: "No leave records found for this student",
+        });
     }
 
     res.status(200).json({ success: true, leaves });
