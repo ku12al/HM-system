@@ -198,6 +198,50 @@ const approveLeave = async (req, res) => {
   }
 };
 
+
+
+//decline the outinh request
+const declineLeave = async (req, res) => {
+  const leaveId = req.params.id;
+
+  try {
+    const leave = await Leave.findById(leaveId).populate("student");
+
+    if (!leave) {
+      return res
+        .status(404)
+        .json({ success: false, msg: "Leave request not found" });
+    }
+
+    // if (leave.status !== "Pending") {
+    //   return res
+    //     .status(400)
+    //     .json({ success: false, msg: "Leave request already processed" });
+    // }
+
+    leave.status = "Decline";
+    leave.approvalDate = new Date();
+
+
+    // // Generate QR Code
+    // const qrCodeData = `${leave.student.erpid}-${leave.approvalDate.getTime()}`;
+    // const qrCode = await QRCode.toDataURL(qrCodeData);
+
+    // leave.qrcode = qrCode;
+    await leave.save();
+
+    res.status(200).json({
+      success: true,
+      msg: "Leave decline for some Reason",
+    });
+  } catch (err) {
+    console.error("Error approving leave:", err);
+    res.status(500).json({ success: false, msg: "Server error" });
+  }
+};
+
+
+//get all the details of the leave
 const getAllLeaveDetails = async (req, res) => {
   try {
     const { status } = req.query; // Accept status as a query parameter
@@ -211,8 +255,9 @@ const getAllLeaveDetails = async (req, res) => {
             $switch: {
               branches: [
                 { case: { $eq: ["$status", "Pending"] }, then: 1 },
-                { case: { $eq: ["$status", "Decline"] }, then: 2 },
-                { case: { $eq: ["$status", "Approved"] }, then: 3 },
+                { case: { $eq: ["$status", "OutingRequest"] }, then: 2 },
+                { case: { $eq: ["$status", "Decline"] }, then: 3 },
+                { case: { $eq: ["$status", "Approved"] }, then: 4 },
               ],
               default: 4,
             },
@@ -253,9 +298,6 @@ const getAllLeaveDetails = async (req, res) => {
           "roomDetails.roomNumber": 1,
           "studentDetails.erpid": 1,
         },
-        // $project: {
-        //   statusPriority: 0, // Exclude statusPriority (it's only for sorting)
-        // },
       },
     ]);
 
@@ -295,4 +337,6 @@ module.exports = {
   getLeaveDetails,
   getAllLeaveDetails,
   outingRequest,
+  declineLeave,
+
 };
