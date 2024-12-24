@@ -1,4 +1,23 @@
-const QRCodeScanner = require('qr-code-scanner');
+// const QRCodeScanner = require('qr-code-scanner');
+const QRCodeReader = require('qrcode-reader');
+const Jimp = require('jimp')
+const decodeQRCode = async (imagePath) => {
+      return new Promise((resolve, reject) => {
+          Jimp.read(imagePath)
+              .then((image) => {
+                  const qr = new QRCodeReader();
+                  qr.callback = (err, value) => {
+                      if (err) {
+                          reject(err);
+                      } else {
+                          resolve(value.result);
+                      }
+                  };
+                  qr.decode(image.bitmap);
+              })
+              .catch((error) => reject(error));
+      });
+  };
 
 const scanQrCode = async (req, res) => {
       try{
@@ -12,7 +31,7 @@ const scanQrCode = async (req, res) => {
               }
             console.log("imagePath")
 
-            // const deCodedData = await decodeQRCode(imagePath);
+            const deCodedData = await decodeQRCode(imagePath);
             console.log("imagePath")
 
 
