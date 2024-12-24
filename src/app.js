@@ -14,7 +14,7 @@ dotenv.config();
 // Import routes
 const studentRoutes = require("../routes/student");
 const authRouter = require("../routes/authRoutes");
-// const gaurdRouter = require("../routes/gaurdRoutes.js");
+const gaurdRouter = require("../routes/gaurdRoutes.js");
 const requestRoutes = require("../routes/requestRoutes");
 const complaintRoutes = require("../routes/complaintRoutes");
 const leaveRoutes = require("../routes/leaveRoutes");
@@ -42,7 +42,7 @@ app.use(session({
 // Define routes
 app.use("/api/register", studentRoutes);
 app.use("/api/auth", authRouter);
-// app.use("/api/gaurd", gaurdRouter);
+app.use("/api/gaurd", gaurdRouter);
 app.use("/api/request", requestRoutes);
 app.use("/api/complaint", complaintRoutes);
 app.use("/api/leave", leaveRoutes);
