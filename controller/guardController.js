@@ -1,9 +1,9 @@
 // const QRCodeScanner = require('qr-code-scanner');
 const QRCodeReader = require('qrcode-reader');
-const Jimp = require('jimp')
+const read = require('jimp');
 const decodeQRCode = async (imagePath) => {
       return new Promise((resolve, reject) => {
-          Jimp.read(imagePath)
+          read(imagePath)
               .then((image) => {
                   const qr = new QRCodeReader();
                   qr.callback = (err, value) => {
@@ -17,7 +17,7 @@ const decodeQRCode = async (imagePath) => {
               })
               .catch((error) => reject(error));
       });
-  };
+};
 
 const scanQrCode = async (req, res) => {
       try{

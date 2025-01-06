@@ -72,7 +72,7 @@ const leaveRequest = async (req, res) => {
 
     res
       .status(201)
-      .json({ success: true, msg: "Leave application submitted successfully" });
+      .json({ success: true, msg: "Leave application submitted successfully", newLeave });
   } catch (err) {
     console.error("Error submitting leave request:", err);
     res.status(500).json({ success: false, msg: "Server error" });
@@ -140,7 +140,7 @@ const outingRequest = async (req, res) => {
 
     res
       .status(201)
-      .json({ success: true, msg: "Leave application submitted successfully" });
+      .json({ success: true, msg: "Leave application submitted successfully", newLeave});
   } catch (err) {
     console.error("Error submitting leave request:", err);
     res.status(500).json({ success: false, msg: "Server error" });
