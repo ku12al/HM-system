@@ -374,6 +374,26 @@ const checkAttendanceAtDate = async (req, res) => {
   }
 };
 
+
+//check attendence details by student
+const checkAttendanceByStudent = async (req, res) => {
+  try {
+    const userId = req.query.userId; // Extract userId from query parameters
+
+    // Find attendance records for the student
+    const student = await Attendance.find({ student: userId });
+
+    if (!student || student.length === 0) {
+      return res.status(404).json({ success: false, message: "No attendance records found for this student" });
+    }
+
+    res.status(200).json({ success: true, attendance: student });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Failed to check attendance details by student" });
+  }
+};
+
 // Schedule Cron Job for Marking Absent Students at 6 PM Daily
 cron.schedule("0 18 * * *", async () => {
   console.log("Checking for absent students...");
@@ -385,4 +405,5 @@ module.exports = {
   markAbsent,
   checkAttendance,
   checkAttendanceAtDate,
+  checkAttendanceByStudent,
 };

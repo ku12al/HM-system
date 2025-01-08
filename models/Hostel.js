@@ -9,19 +9,20 @@ const hostelSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  capacity: {
+    type: Number,
+    required: true
+  },
   rooms: [
     {
       room: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'room',
-        required: true
+        // required: true
       }
     }
-  ],
-  capacity: {
-    type: Number,
-    required: true
-  }
+  ]
+
 });
 
 // Check if the model already exists before defining it

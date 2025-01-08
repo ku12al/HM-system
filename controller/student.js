@@ -28,8 +28,10 @@ const registerStudent = async (req, res) => {
     roomNumber,
   } = req.body;
 
-  const session = await mongoose.startSession(); // Start session for transaction
-  session.startTransaction();
+  // const session = await mongoose.startSession(); // Start session for transaction
+  // session.startTransaction();
+
+
   try {
     // Check if the student already exists
     const existingStudent = await Student.findOne({ erpid });
@@ -78,7 +80,9 @@ const registerStudent = async (req, res) => {
           students: [],
         },
       },
-      { new: true, upsert: true, session }
+      // { new: true, upsert: true, session }
+      { new: true, upsert: true}
+
     );
 
     // Check room capacity
@@ -117,15 +121,23 @@ const registerStudent = async (req, res) => {
       qrCode: qrImageData,
     });
 
+
+    // await student.save({ session });
+    // await room.save({ session });
+
+    //     // Commit the transaction
+    //     await session.commitTransaction();
+    //     session.endSession();
+
+
     // Save all changes
     await user.save();
     await student.save();
     room.students.push({ student: student._id });
-    await room.save({ session });
+    // await room.save({ session });
+    await room.save();
 
-    // Commit the transaction
-    await session.commitTransaction();
-    session.endSession();
+
     // res.json({ message: "Student created successfully" });
     // Set the response header to indicate that this is an image
     res.setHeader("Content-Type", "image/png");
@@ -133,8 +145,8 @@ const registerStudent = async (req, res) => {
     // Send the image as a Buffer
     res.send(Buffer.from(qrImageData, "base64"));
   } catch (err) {
-    await session.abortTransaction(); // Rollback on error
-    session.endSession();
+    // await session.abortTransaction(); // Rollback on error
+    // session.endSession();
     console.error(err);
     res.status(500).json({ error: "Server error" });
   }

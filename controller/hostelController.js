@@ -10,12 +10,14 @@ const hostelRegister = async (req, res) => {
     return res.status(500).json({ success, errors: errors.array() });
   }
 
-  const { hostelname, location } = req.body;
+  const { hostelname, location, capacity, rooms } = req.body;
 
   try {
     const hostel = new Hostel({
       hostelname,
       location,
+      capacity,
+      rooms
     });
 
     await hostel.save();
@@ -30,26 +32,25 @@ const hostelRegister = async (req, res) => {
 
 //get all student in particular hostel
 const getAllStudentByHostel = async (req, res) => {
-  let success = false;
-  const errors = validationResult(req);
-
-  // Validation errors
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ success, errors: errors.array() });
-  }
-
-  const { hostelId } = req.body;
+  console.log("jonsoeioe")
+  const id = req.query;
+  console.log(id)
 
   try {
     // Find hostel
-    const shostel = await Hostel.findOne({ _id: hostelId });
+  console.log("jonsoeioe")
 
+    const shostel = await Hostel.findOne({ _id: id });
+  console.log("jonsoeioe")
+
+console.log(shostel)
     // If hostel doesn't exist
     if (!shostel) {
       return res
         .status(404)
         .json({ success: false, errors: [{ message: "Hostel not found" }] });
     }
+    console.log("jonsoeioe")
 
     // Find all students in that hostel
     const students = await Student.find({ hostel: shostel._id }).select(
