@@ -1,4 +1,56 @@
 const Complaint = require("../models/Complaint");
+const bcrypt = require("bcryptjs");
+const Superadmin = require("../models/Superadmin");
+
+
+const registerSuperAdmin = async (req, res) => {
+  try{
+    const {name, erpid, password} = req.body;
+    const admin = await Superadmin.findOne({erpid});
+    if(admin){
+      return res.status(400).json({success: false, msg: "admin already exists"});
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashpassword = await bcrypt.hash(password, salt);
+
+    const newAdmin = new Superadmin({
+      name,
+      erpid,
+      password: hashpassword
+    })
+
+
+    await newAdmin.save();
+
+    return res.status(200).json({success: true, msg: "admin registered successfully"});
+  }catch(err){
+    res.status(500).json({success: false, msg: err.message})
+  }
+}
+
+
+const loginSuperAdmin = async (req, res)=>{
+  try{
+    const {erpid, password} = req.body;
+
+    const admin = await Superadmin.findOne({erpid});
+    if(!admin){
+      return res.status(400).json({success: false, msg: "admin not found"});
+    }
+
+    const isMatch = await bcrypt.compare(password, admin.password);
+
+    if(!isMatch){
+      return res.status(404).json({success: false, msg: "password not match"});
+    }
+
+    return res.status(200).json({success: true, admin});
+
+  }catch(err){
+    return rew.status(500).json({success: false, msg: err.message});
+  }
+}
 
 const getAllComplaint = async (req, res) => {
   try {
@@ -39,4 +91,6 @@ const getAllComplaint = async (req, res) => {
 
 module.exports = {
   getAllComplaint,
+  registerSuperAdmin,
+  loginSuperAdmin
 };

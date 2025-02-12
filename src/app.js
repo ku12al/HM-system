@@ -22,7 +22,7 @@ const hostelRoutes = require("../routes/hostelRoutes");
 const attendanceRoutes = require("../routes/attendanceRouter");
 const roomRoutes = require("../routes/roomsRoutes");
 const wardenRoutes = require("../routes/wardenRoutes");
-const superadminRoutes = require("../routes/superadminRoutes");
+const superAdminRoutes = require("../routes/superAdminRouter.js");
 
 // Add CORS middleware
 app.use(cors());
@@ -50,7 +50,7 @@ app.use("/api/hostel", hostelRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/warden", wardenRoutes);
-app.use("/api/superadmin", superadminRoutes);
+app.use("/api/superadmin", superAdminRoutes);
 
 
 // Start the server
