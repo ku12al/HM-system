@@ -1,62 +1,67 @@
-const mongoose = require('mongoose')
-const Schema = mongoose.Schema
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
 const leaveSchema = new Schema({
-      erpid:{
-            type:Number,
-            required:true
+      erpid: {
+            type: String, // Change to String if erpid may contain leading zeros
+            required: true
       },
-      student:{
-            type:Schema.Types.ObjectId,
-            ref:'Student'
+      student: {
+            type: Schema.Types.ObjectId,
+            ref: 'Student'
       },
-      roomNumber:{
-            type:Schema.Types.ObjectId,
-            ref:'Room'
+      roomNumber: {
+            type: Schema.Types.ObjectId,
+            ref: 'Room'
       },
-      hostel:{
-            type:Schema.Types.ObjectId,
-            ref:'Hostel'
+      hostel: {
+            type: Schema.Types.ObjectId,
+            ref: 'Hostel'
       },
-      parentName:{
-            type:String,
-            // required:true
+      parentName: {
+            type: String,
+            required: true // Uncomment if required
       },
-      parentNumber:{
-            type:Number,
-            // required:true,
-
+      parentNumber: {
+            type: Number,
+            required: true // Uncomment if required
       },
-      title:{
-            type:String,
-            required:true
+      title: {
+            type: String,
+            required: true
       },
-      reason:{
-            type:String,
-            required:true
+      reason: {
+            type: String,
+            required: true
       },
-      status:{
-            type:String,
-            enum:["Pending" , "Approved", "Decline", "OutingRequest"]
+      status: {
+            type: String,
+            enum: ["Pending", "Approved", "Decline", "OutingRequest"],
+            default: "Pending"
       },
       leaveDate: {
-            type: Date, 
-            required: true 
-      }, // Date when the student goes out
-      leaveTime: { type: String, required: true }, // Leave time as a string
-      returnDate: { 
-            type: Date 
-      }, // Optional: Date when the student is expected to return
-      returnTime: { type: String }, // Optional return time
-      qrcode:{
-            type:String,
+            type: Date,
+            required: true
       },
-      requestDate:{
-            type:Date,
-            default: Date.now()
+      leaveTime: {
+            type: String,
+            required: true // Ensure consistency in format
+      },
+      returnDate: {
+            type: Date
+      },
+      returnTime: {
+            type: String
+      },
+      qrcode: {
+            type: String
+      },
+      requestDate: {
+            type: Date,
+            default: Date.now // Corrected
       },
       approvalDate: Date
-})
+});
 
 const Leave = mongoose.model('Leave', leaveSchema);
 module.exports = Leave;
