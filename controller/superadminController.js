@@ -52,6 +52,23 @@ const loginSuperAdmin = async (req, res)=>{
   }
 }
 
+
+//get data of super admin
+const getSuperAdmin = async (req, res) => {
+  try{
+    const superAdmin = await Superadmin.findById(req.params.id);
+    // If student is not found
+    if (!superAdmin) {
+      return res.status(404).json({ success: false, errors: "Super Admin not found" });
+    }
+    return res.status(200).json({success: true, superAdmin});
+
+    
+
+  }catch(error){
+    return res.status(500).json({success: false, msg: error.message});
+  }
+}
 const getAllComplaint = async (req, res) => {
   try {
     // Filter to show only unsolved complaints
@@ -92,5 +109,6 @@ const getAllComplaint = async (req, res) => {
 module.exports = {
   getAllComplaint,
   registerSuperAdmin,
-  loginSuperAdmin
+  loginSuperAdmin,
+  getSuperAdmin
 };
