@@ -196,6 +196,7 @@ const getComplaintByStudent = async (req, res) => {
   }
 };
 
+
 //satisfied or not satisfied by student
 const updateComplaintStatus = async (req, res) => {
   try {

@@ -14,10 +14,6 @@ const Student = require("../models/Student");
 
 // Submit Leave Request for home
 const leaveRequest = async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ success: false, errors: errors.array() });
-  }
   const {
     erpid,
     name,
@@ -82,11 +78,6 @@ const leaveRequest = async (req, res) => {
 
 
 const outingRequest = async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ success: false, errors: errors.array() });
-  }
-  console.log("inowne")
   const {
     erpid,
     name,
@@ -97,7 +88,7 @@ const outingRequest = async (req, res) => {
     leaveDate,
     leaveTime,
   } = req.body;
-  console.log("inowne")
+
 
   try {
     const student = await Student.findOne({ erpid });
@@ -307,6 +298,8 @@ const getAllLeaveDetails = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
+
+
 
 // Get Leave Details for a Student
 const getLeaveDetails = async (req, res) => {
